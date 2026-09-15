@@ -1,0 +1,109 @@
+name: Publish beta
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: npm-publish-beta
+  cancel-in-progress: false
+
+jobs:
+  candidate:
+    runs-on: ubuntu-latest
+    outputs:
+      artifact-id: ${{ steps.upload.outputs.artifact-id }}
+      artifact-digest: ${{ steps.upload.outputs.artifact-digest }}
+    steps:
+      - name: Require the reviewed main branch
+        if: github.ref != 'refs/heads/main'
+        run: exit 1
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - name: Pack the immutable release candidate
+        run: node scripts/create-release-candidate.mjs "$GITHUB_SHA"
+      - id: upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-release-candidate
+          path: release-candidate/
+          if-no-files-found: error
+          retention-days: 30
+
+  canary:
+    needs: candidate
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+        node:
+          - 22
+          - 24
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          artifact-ids: ${{ needs.candidate.outputs.artifact-id }}
+          path: release-candidate
+          merge-multiple: true
+      - name: Install and verify the exact candidate
+        run: node scripts/verify-release-candidate.mjs release-candidate/release-candidate.json "${{ github.sha }}"
+
+  publish:
+    needs:
+      - candidate
+      - canary
+    runs-on: ubuntu-latest
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          registry-url: https://registry.npmjs.org
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          artifact-ids: ${{ needs.candidate.outputs.artifact-id }}
+          path: release-candidate
+          merge-multiple: true
+      - name: Publish only the tested candidate and write its receipt
+        run: >-
+          node scripts/publish-release-candidate.mjs
+          release-candidate/release-candidate.json
+          "$RELEASE_COMMIT"
+          "$RELEASE_RUN_ID"
+          "$CANDIDATE_ARTIFACT_ID"
+          "$CANDIDATE_ARTIFACT_DIGEST"
+        env:
+          RELEASE_COMMIT: ${{ github.sha }}
+          RELEASE_RUN_ID: ${{ github.run_id }}
+          CANDIDATE_ARTIFACT_ID: ${{ needs.candidate.outputs.artifact-id }}
+          CANDIDATE_ARTIFACT_DIGEST: ${{ needs.candidate.outputs.artifact-digest }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: npm-publisher-receipt
+          path: npm-publisher-receipt.json
+          if-no-files-found: error
+          retention-days: 90

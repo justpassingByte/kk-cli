@@ -1,0 +1,74 @@
+{
+  "name": "@bestagentkits/ak",
+  "version": "0.1.0-beta.0",
+  "description": "AgentKit CLI for installing, updating, and managing agent kits",
+  "type": "module",
+  "license": "MIT",
+  "author": "Duy Nguyen",
+  "homepage": "https://agentkit.best",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bestagentkits/ak-cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bestagentkits/agentkit-support/issues"
+  },
+  "bin": {
+    "kk": "bin/ak.js",
+    "ak": "bin/ak.js"
+  },
+  "files": [
+    "bin",
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": "^22.14.0 || >=24.0.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --platform node --target node22 --clean --sourcemap",
+    "check": "npm run typecheck && npm run lint && npm run test && npm run build",
+    "dev": "tsx src/index.ts",
+    "lint": "eslint src tests",
+    "package:verify": "node scripts/verify-packed-package.mjs",
+    "prepare": "npm run build",
+    "prepack": "npm run check",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@clack/prompts": "1.7.0",
+    "cac": "7.0.0",
+    "picocolors": "1.1.1",
+    "proper-lockfile": "4.1.2",
+    "semver": "7.8.5",
+    "tar-stream": "3.2.0",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/node": "26.1.2",
+    "@types/proper-lockfile": "4.1.4",
+    "@types/semver": "7.7.1",
+    "@types/tar-stream": "3.1.4",
+    "eslint": "10.8.0",
+    "tsup": "8.5.1",
+    "tsx": "4.20.6",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.65.0",
+    "vitest": "4.1.10"
+  },
+  "keywords": [
+    "agentkit",
+    "ai-agents",
+    "cli",
+    "claude-code",
+    "codex"
+  ]
+}

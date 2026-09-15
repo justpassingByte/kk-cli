@@ -1,0 +1,87 @@
+name: Promote stable
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Exact already-published beta version
+        required: true
+        type: string
+      beta_run_id:
+        description: Successful Publish beta workflow run ID
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: npm-promote-stable
+  cancel-in-progress: false
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    environment: npm
+    steps:
+      - name: Require the reviewed main branch
+        if: github.ref != 'refs/heads/main'
+        run: exit 1
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          registry-url: https://registry.npmjs.org
+      - run: npm ci
+      - name: Validate beta run input
+        run: >-
+          node --input-type=module
+          -e 'import { assertRunId } from "./scripts/release-artifact-contract.mjs";
+          assertRunId(process.argv[1]);'
+          "$BETA_RUN_ID"
+        env:
+          BETA_RUN_ID: ${{ inputs.beta_run_id }}
+      - name: Fetch immutable GitHub run evidence
+        run: |
+          mkdir release-evidence
+          gh api "repos/$RELEASE_REPOSITORY/actions/runs/$BETA_RUN_ID" > release-evidence/run.json
+          gh api "repos/$RELEASE_REPOSITORY/actions/runs/$BETA_RUN_ID/artifacts?per_page=100" > release-evidence/artifacts.json
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_REPOSITORY: ${{ github.repository }}
+          BETA_RUN_ID: ${{ inputs.beta_run_id }}
+      - name: Download the immutable beta candidate
+        uses: actions/download-artifact@v4
+        with:
+          name: npm-release-candidate
+          path: release-candidate
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.beta_run_id }}
+      - name: Download the beta publisher receipt
+        uses: actions/download-artifact@v4
+        with:
+          name: npm-publisher-receipt
+          path: npm-publisher-receipt
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.beta_run_id }}
+      - name: Verify receipts and promote only the existing npm artifact
+        run: >-
+          node scripts/promote-stable-release.mjs
+          release-candidate/release-candidate.json
+          npm-publisher-receipt/npm-publisher-receipt.json
+          release-evidence/run.json
+          release-evidence/artifacts.json
+          "$RELEASE_VERSION"
+          "$BETA_RUN_ID"
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+          BETA_RUN_ID: ${{ inputs.beta_run_id }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: npm-stable-promotion-receipt
+          path: npm-stable-promotion-receipt.json
+          if-no-files-found: error
+          retention-days: 90
