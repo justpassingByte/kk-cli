@@ -40,22 +40,32 @@ kk login
 kk export engineer --output ./engineer.tar.gz
 ```
 
-### 2. Installing an Offline Kit (Bypass Login / License)
+### 2. Installing for Antigravity (AGY / Gemini)
 
-Install a kit into your project directly from an exported archive or folder without needing remote authentication:
+Install skills, rules, and subagents directly into Antigravity structure (`.agents/`) without requiring Claude Code CLI:
 
 ```bash
-# Navigate to your project directory
-cd /path/to/your/project
+# Install into the current project
+kk init engineer --runtime agy --from ./engineer.tar.gz --yes
 
-# Install from local archive
-kk init --from ./engineer.tar.gz -y
+# Install into a specific project directory
+kk init engineer --runtime agy --from ./engineer.tar.gz --project-dir "/path/to/project" --yes
+
+# Install globally for all Antigravity projects
+kk init engineer --runtime agy --from ./engineer.tar.gz --scope global --yes
 ```
 
-### 3. Normal Online Installation
+> **Note on Antigravity Slash Commands:** 
+> When installing for `agy`, `kk` automatically generates `.agents/rules/commands.md` mapping all 65+ kit skills to custom Slash Commands (e.g. `/code-review`, `/debug`, `/backend-development`, `/databases`, `/git`, `/orchestrate`, etc.).
+
+### 3. Installing for Claude Code (Online / Offline)
 
 ```bash
-kk init engineer --runtime claude-code --scope project -y
+# Online install for Claude Code
+kk init engineer --runtime claude-code --scope project --yes
+
+# Offline install for Claude Code from archive
+kk init engineer --runtime claude-code --from ./engineer.tar.gz --yes
 ```
 
 ---
