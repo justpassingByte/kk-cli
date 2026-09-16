@@ -249,7 +249,8 @@ async function collectArtifactFiles(artifactDirectory: string): Promise<Collecte
             .replace(/~\/\.claude\//g, '~/.gemini/config/')
             .replace(/\.claude\//g, '.agents/')
             .replace(/claude plugin install/gi, 'kk init --runtime agy')
-            .replace(/Claude Code/gi, 'Antigravity');
+            .replace(/Claude Code/gi, 'Antigravity')
+            .replace(/^name:\s*ak:([a-z0-9-]+)/gm, 'name: $1');
           contents = Buffer.from(text, 'utf8');
         }
         files.push({
