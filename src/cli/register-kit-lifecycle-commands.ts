@@ -40,7 +40,7 @@ export function registerKitLifecycleCommands(cli: CAC, app: KitLifecycleApplicat
     .command('init [kit]', 'Install or update a verified AgentKit kit')
     .option('--kit <kit>', 'Kit ID (alternative to the positional kit)')
     .option('--from <path>', 'Path to local kit export (.zip, .tar.gz, or directory)')
-    .option('--runtime <runtime>', 'Runtime: claude-code, codex, or cursor')
+    .option('--runtime <runtime>', 'Runtime: claude-code, codex, cursor, or agy')
     .option('--channel <channel>', 'Release channel: dev, beta, or stable')
     .option('--scope <scope>', 'Install scope: global or project')
     .option('--project-dir <path>', 'Project directory for project scope')
@@ -67,7 +67,7 @@ export function registerKitLifecycleCommands(cli: CAC, app: KitLifecycleApplicat
     .command('export [kit]', 'Download and export a verified kit archive to a local file')
     .option('--kit <kit>', 'Kit ID (default: engineer)')
     .option('--output <path>', 'Destination file path (e.g. ./engineer.tar.gz)')
-    .option('--runtime <runtime>', 'Runtime: claude-code, codex, or cursor')
+    .option('--runtime <runtime>', 'Runtime: claude-code, codex, cursor, or agy')
     .option('--channel <channel>', 'Release channel: dev, beta, or stable')
     .action(async (positionalKit: string | undefined, raw: LifecycleOptions) => {
       const options = normalizeGlobalOptions(raw);
@@ -84,16 +84,17 @@ export function registerKitLifecycleCommands(cli: CAC, app: KitLifecycleApplicat
 
   cli
     .command('uninstall [kit]', 'Safely remove one installed kit')
-    .option('--installation-id <id>', 'Exact installed-kit registry ID')
-    .option('--runtime <runtime>', 'Limit selection to a runtime')
-    .option('--scope <scope>', 'Limit selection to global or project scope')
-    .option('--project-dir <path>', 'Limit selection to a project directory')
+    .option('--installation-id <id>', 'Exact installation ID to remove')
+    .option('--kit <kit>', 'Kit ID (alternative to the positional kit)')
+    .option('--runtime <runtime>', 'Runtime: claude-code, codex, cursor, or agy')
+    .option('--scope <scope>', 'Install scope: global or project')
+    .option('--project-dir <path>', 'Project directory for project scope')
     .action(async (positionalKit: string | undefined, raw: LifecycleOptions) => {
       const options = normalizeGlobalOptions(raw);
       await executeCommand(options, () =>
         app.uninstall.execute({
           ...(raw.installationId ? { installationId: raw.installationId } : {}),
-          ...(positionalKit ? { kitId: parseKitId(positionalKit) } : {}),
+          ...(raw.kit || positionalKit ? { kitId: parseKitId(raw.kit ?? positionalKit) } : {}),
           ...(raw.runtime ? { runtime: parseRuntime(raw.runtime) } : {}),
           ...(raw.scope ? { scope: parseScope(raw.scope) } : {}),
           ...(raw.projectDir ? { projectDirectory: raw.projectDir } : {}),
@@ -110,8 +111,17 @@ function parseKitId(value: string | undefined): string {
 }
 
 function parseRuntime(value: string): RegistryRuntime {
-  if (value === 'claude-code' || value === 'codex' || value === 'cursor') return value;
-  throw invalid('Runtime must be claude-code, codex, or cursor.');
+  const normalized = value.toLowerCase();
+  if (normalized === 'antigravity') return 'agy';
+  if (
+    normalized === 'claude-code' ||
+    normalized === 'codex' ||
+    normalized === 'cursor' ||
+    normalized === 'agy'
+  ) {
+    return normalized as RegistryRuntime;
+  }
+  throw invalid('Runtime must be claude-code, codex, cursor, agy, or antigravity.');
 }
 
 function parseChannel(value: string): RegistryChannel {

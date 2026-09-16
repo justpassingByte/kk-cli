@@ -14,6 +14,8 @@ import { LocalFilesystemTransaction } from './infrastructure/filesystem/local-fi
 import { RemoteRegistryClient } from './infrastructure/registry/remote-registry-client.js';
 import { downloadAndExtractVerifiedKit } from './infrastructure/registry/verified-artifact-pipeline.js';
 import { ClaudeCodeProjectPluginProjector } from './infrastructure/runtime/claude-code-project-plugin-projector.js';
+import { AgyProjectPluginProjector } from './infrastructure/runtime/agy-project-plugin-projector.js';
+import { CompositeRuntimeProjector } from './infrastructure/runtime/composite-runtime-projector.js';
 import { InitUseCase } from './application/init-use-case.js';
 import { UninstallUseCase } from './application/uninstall-use-case.js';
 import { NpmRuntimeManager } from './infrastructure/packages/npm-runtime-manager.js';
@@ -41,7 +43,10 @@ export function createApplication() {
   const transaction = new LocalFilesystemTransaction(
     createClaudeExternalRecoveryHandler(claudeCode),
   );
-  const projector = new ClaudeCodeProjectPluginProjector(claudeCode);
+  const projector = new CompositeRuntimeProjector(
+    new ClaudeCodeProjectPluginProjector(claudeCode),
+    new AgyProjectPluginProjector(),
+  );
   const registry = new RemoteRegistryClient({
     baseUrl:
       process.env['AGENTKIT_REGISTRY_URL'] ||

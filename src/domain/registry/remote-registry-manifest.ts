@@ -40,7 +40,7 @@ export const remoteRegistryManifestSchema = z
     schemaVersion: z.literal('remote-registry.v1'),
     kitId: kitIdSchema,
     tier: z.enum(['free', 'paid']).optional(),
-    runtime: z.enum(['claude-code', 'codex', 'cursor']),
+    runtime: z.enum(['claude-code', 'codex', 'cursor', 'agy', 'antigravity']),
     version: semverSchema,
     channel: z.enum(['dev', 'beta', 'stable']),
     adapterSchemaVersion: z.literal('agentkit-adapter.v1'),

@@ -155,7 +155,7 @@ function parseInstalledKitRegistry(value: unknown): InstalledKitRegistryV1 {
     const record: InstalledKitRecord = {
       installationId: key,
       kit: rawRecord.kit as string,
-      runtime: parseEnum(rawRecord.runtime, ['claude-code', 'codex', 'cursor'], 'runtime'),
+      runtime: parseEnum(rawRecord.runtime, ['claude-code', 'codex', 'cursor', 'agy', 'antigravity'], 'runtime'),
       scope: parseEnum(rawRecord.scope, ['global', 'project'], 'scope'),
       channel: parseEnum(rawRecord.channel, ['dev', 'beta', 'stable'], 'channel'),
       installRoot: rawRecord.installRoot as string,
@@ -210,7 +210,8 @@ function parseProjectRuntimeRecords(
       raw.projectId !== projectId ||
       typeof raw.projectDirectory !== 'string' ||
       !path.isAbsolute(raw.projectDirectory) ||
-      raw.runtime !== 'claude-code' ||
+      typeof raw.runtime !== 'string' ||
+      !['claude-code', 'agy', 'antigravity'].includes(raw.runtime) ||
       typeof raw.ownershipPath !== 'string' ||
       !path.isAbsolute(raw.ownershipPath) ||
       !isPathWithinRoot(raw.projectDirectory, raw.ownershipPath) ||
@@ -222,7 +223,7 @@ function parseProjectRuntimeRecords(
     projects[projectId] = {
       projectId,
       projectDirectory: raw.projectDirectory,
-      runtime: 'claude-code',
+      runtime: raw.runtime as 'claude-code' | 'agy' | 'antigravity',
       ownershipPath: raw.ownershipPath,
       ownershipSha256: raw.ownershipSha256,
       updatedAt: raw.updatedAt,

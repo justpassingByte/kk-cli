@@ -128,7 +128,7 @@ function validateRequest(input: ResolveKitRequest): Required<ResolveKitRequest> 
   const channel = (input.channel ?? 'stable').toLowerCase() as RegistryChannel;
   const version = input.version?.trim() ?? '';
   if (!/^[a-z0-9-]+$/.test(kitId)) throw inputError('Invalid kit ID.');
-  if (!['claude-code', 'codex', 'cursor'].includes(input.runtime)) {
+  if (!['claude-code', 'codex', 'cursor', 'agy', 'antigravity'].includes(input.runtime)) {
     throw inputError('Invalid registry runtime.');
   }
   if (!['dev', 'beta', 'stable'].includes(channel)) throw inputError('Invalid registry channel.');

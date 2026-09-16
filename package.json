@@ -37,8 +37,8 @@
     "package:verify": "node scripts/verify-packed-package.mjs",
     "prepare": "npm run build",
     "prepack": "npm run check",
-    "test": "vitest run",
-    "test:coverage": "vitest run --coverage",
+    "test": "vitest run tests",
+    "test:coverage": "vitest run tests --coverage",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

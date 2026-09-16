@@ -82,7 +82,12 @@ export async function prepareKitInstall(
   const installationId = createInstallationId(target, projectDirectory);
   const currentRegistry = await store.load();
   const currentRecord = currentRegistry.kits[installationId];
-  if (currentRecord && path.resolve(currentRecord.installRoot) !== path.resolve(installRoot)) {
+  if (
+    currentRecord &&
+    path.resolve(currentRecord.installRoot) !== path.resolve(installRoot) &&
+    target.runtime !== 'agy' &&
+    target.runtime !== 'antigravity'
+  ) {
     throw conflict('Installed-kit registry points this installation at a different path.');
   }
 
@@ -90,7 +95,12 @@ export async function prepareKitInstall(
   if (oldManifest && oldManifest.kit !== target.kitId) {
     throw conflict('Existing ownership manifest belongs to a different kit.');
   }
-  if (currentRecord && !oldManifest) {
+  if (
+    currentRecord &&
+    !oldManifest &&
+    target.runtime !== 'agy' &&
+    target.runtime !== 'antigravity'
+  ) {
     throw conflict('Installed-kit registry exists but its ownership manifest is missing.');
   }
   if (oldManifest && !currentRecord) {
@@ -141,7 +151,7 @@ export async function prepareKitInstall(
       {
         projectId: projection.projectOwnership.projectId,
         projectDirectory: projectDirectory as string,
-        runtime: 'claude-code',
+        runtime: (target.runtime === 'agy' || target.runtime === 'antigravity') ? target.runtime : 'claude-code',
         ownershipPath: projection.projectOwnership.path,
         ownershipSha256: projection.projectOwnership.nextSha256,
         updatedAt: now,
@@ -243,7 +253,7 @@ function validateProjectOwnershipRegistry(
     !currentProject ||
     !previousSha256 ||
     currentProject.projectDirectory !== projectDirectory ||
-    currentProject.runtime !== 'claude-code' ||
+    !['claude-code', 'agy', 'antigravity'].includes(currentProject.runtime) ||
     path.resolve(currentProject.ownershipPath) !==
       path.resolve(projection.projectOwnership.path) ||
     currentProject.ownershipSha256 !== previousSha256

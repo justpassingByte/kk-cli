@@ -6,7 +6,7 @@ export interface InstalledKitRecord {
   installationId: string;
   kit: string;
   kitVersion?: string;
-  runtime: 'claude-code' | 'codex' | 'cursor';
+  runtime: 'claude-code' | 'codex' | 'cursor' | 'agy' | 'antigravity';
   scope: 'global' | 'project';
   channel: 'dev' | 'beta' | 'stable';
   projectDirectory?: string;
@@ -20,7 +20,7 @@ export interface InstalledKitRecord {
 export interface ProjectRuntimeRegistryRecord {
   projectId: string;
   projectDirectory: string;
-  runtime: 'claude-code';
+  runtime: 'claude-code' | 'agy' | 'antigravity';
   ownershipPath: string;
   ownershipSha256: string;
   updatedAt: string;

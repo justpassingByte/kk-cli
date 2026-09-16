@@ -767,7 +767,7 @@ function recoveryOutcomes(
       root: write.root,
       relativePath: write.relativePath,
       afterSha256: sha256Bytes(write.contents),
-      afterMode: write.mode ?? 0o600,
+      afterMode: write.mode !== undefined ? (write.mode & 0o777) : 0o600,
       afterSize:
         typeof write.contents === 'string'
           ? Buffer.byteLength(write.contents)

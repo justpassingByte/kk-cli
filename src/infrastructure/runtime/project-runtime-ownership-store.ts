@@ -58,27 +58,41 @@ function parseProjectRuntimeOwnership(
     throw conflict('Unsupported project runtime ownership schema.');
   }
   const providerSource = value.providerSource;
+  const isClaude = value.runtime === 'claude-code';
+  const isAgy = value.runtime === 'agy' || value.runtime === 'antigravity';
+  if (!isClaude && !isAgy) {
+    throw conflict('Project runtime ownership metadata does not match this project.');
+  }
+
   if (
-    value.runtime !== 'claude-code' ||
     !samePath(value.projectDirectory, projectRoot) ||
-    value.marketplaceName !== 'agentkit-local' ||
-    !samePath(
-      value.marketplacePath,
-      path.join(projectRoot, '.claude-plugin', 'marketplace.json'),
-    ) ||
     !isSha256(value.marketplaceSha256) ||
     !isRecord(providerSource) ||
     providerSource.kind !== 'directory' ||
-    !samePath(providerSource.path, projectRoot) ||
+    typeof providerSource.path !== 'string' ||
     !isRecord(value.plugins) ||
     typeof value.updatedAt !== 'string'
   ) {
     throw conflict('Project runtime ownership metadata does not match this project.');
   }
+
+  if (isClaude) {
+    if (
+      value.marketplaceName !== 'agentkit-local' ||
+      !samePath(
+        value.marketplacePath,
+        path.join(projectRoot, '.claude-plugin', 'marketplace.json'),
+      ) ||
+      !samePath(providerSource.path, projectRoot)
+    ) {
+      throw conflict('Project runtime ownership metadata does not match this project.');
+    }
+  }
+
   const plugins: ProjectRuntimeOwnershipV1['plugins'] = {};
   for (const [reference, raw] of Object.entries(value.plugins)) {
     if (
-      !/^ak-[a-z0-9-]+@agentkit-local$/u.test(reference) ||
+      !/^(?:ak|agy)-[a-z0-9-]+@(?:agentkit-local|antigravity)$/u.test(reference) ||
       !isRecord(raw) ||
       typeof raw.kitId !== 'string' ||
       typeof raw.version !== 'string' ||
@@ -99,13 +113,12 @@ function parseProjectRuntimeOwnership(
   }
   for (const [reference, raw] of Object.entries(rawResidues)) {
     if (
-      !/^ak-[a-z0-9-]+@agentkit-local$/u.test(reference) ||
+      !/^(?:ak|agy)-[a-z0-9-]+@(?:agentkit-local|antigravity)$/u.test(reference) ||
       !isRecord(raw) ||
       typeof raw.kitId !== 'string' ||
-      reference !== `ak-${raw.kitId}@agentkit-local` ||
       typeof raw.version !== 'string' ||
       raw.version.length === 0 ||
-      raw.marketplaceEntryName !== `ak-${raw.kitId}` ||
+      typeof raw.marketplaceEntryName !== 'string' ||
       !isSha256(raw.expectedMarketplaceSha256) ||
       typeof raw.removedAt !== 'string' ||
       raw.removedAt.length === 0 ||
@@ -123,12 +136,12 @@ function parseProjectRuntimeOwnership(
   }
   return {
     version: PROJECT_RUNTIME_OWNERSHIP_VERSION,
-    runtime: 'claude-code',
+    runtime: (isAgy ? (value.runtime as 'agy' | 'antigravity') : 'claude-code'),
     projectDirectory: projectRoot,
-    marketplaceName: 'agentkit-local',
-    marketplacePath: path.join(projectRoot, '.claude-plugin', 'marketplace.json'),
+    marketplaceName: typeof value.marketplaceName === 'string' ? value.marketplaceName : 'agentkit-local',
+    marketplacePath: typeof value.marketplacePath === 'string' ? value.marketplacePath : path.join(projectRoot, '.claude-plugin', 'marketplace.json'),
     marketplaceSha256: value.marketplaceSha256,
-    providerSource: { kind: 'directory', path: projectRoot },
+    providerSource: { kind: 'directory', path: providerSource.path },
     plugins,
     residues,
     updatedAt: value.updatedAt,

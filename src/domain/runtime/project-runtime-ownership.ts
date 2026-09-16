@@ -18,9 +18,9 @@ export interface ProjectRuntimeResidue {
 
 export interface ProjectRuntimeOwnershipV1 {
   version: typeof PROJECT_RUNTIME_OWNERSHIP_VERSION;
-  runtime: 'claude-code';
+  runtime: 'claude-code' | 'agy' | 'antigravity';
   projectDirectory: string;
-  marketplaceName: 'agentkit-local';
+  marketplaceName: string;
   marketplacePath: string;
   marketplaceSha256: string;
   providerSource: {
