@@ -69,7 +69,8 @@ export async function prepareKitInstall(
 
   if (
     projection &&
-    path.resolve(projection.projectRoot) !== path.resolve(projectDirectory as string)
+    projectDirectory &&
+    path.resolve(projection.projectRoot) !== path.resolve(projectDirectory)
   ) {
     throw conflict('Runtime projection points at a different project directory.');
   }
@@ -142,15 +143,16 @@ export async function prepareKitInstall(
   };
   let nextRegistry = store.prepareUpsert(record, currentRegistry);
   if (projection) {
+    const effectiveProjDir = projectDirectory ?? projection.projectRoot;
     validateProjectOwnershipRegistry(
       projection,
-      projectDirectory as string,
+      effectiveProjDir,
       currentRegistry,
     );
     nextRegistry = store.prepareUpsertProject(
       {
         projectId: projection.projectOwnership.projectId,
-        projectDirectory: projectDirectory as string,
+        projectDirectory: effectiveProjDir,
         runtime: (target.runtime === 'agy' || target.runtime === 'antigravity') ? target.runtime : 'claude-code',
         ownershipPath: projection.projectOwnership.path,
         ownershipSha256: projection.projectOwnership.nextSha256,

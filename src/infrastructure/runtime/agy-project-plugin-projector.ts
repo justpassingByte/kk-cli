@@ -40,21 +40,24 @@ export class AgyProjectPluginProjector implements RuntimeProjector {
   }
 
   async prepare(input: RuntimeProjectionInput): Promise<PreparedRuntimeProjection> {
-    const projectRoot = await canonicalizeRoot(path.resolve(input.projectDirectory));
-    const agentsDir = input.scope === 'global'
-      ? path.join(process.env.USERPROFILE || process.env.HOME || '', '.gemini', 'config')
+    const isGlobal = input.scope === 'global';
+    const projectRoot = isGlobal
+      ? await canonicalizeRoot(path.join(process.env.USERPROFILE || process.env.HOME || '', '.gemini', 'config'))
+      : await canonicalizeRoot(path.resolve(input.projectDirectory));
+    const agentsDir = isGlobal
+      ? projectRoot
       : path.join(projectRoot, '.agents');
     await fs.mkdir(agentsDir, { recursive: true, mode: 0o755 });
 
-    const pluginLabel = input.scope === 'global' ? '.gemini/config' : '.agents';
+    const pluginLabel = isGlobal ? '.gemini/config' : '.agents';
     const pluginReference = `agy-${input.kitId}@antigravity`;
     const artifactFiles = await collectArtifactFiles(input.artifactDirectory);
 
     const writes: TransactionFileWrite[] = [];
     for (const file of artifactFiles) {
-      // Map artifact files into .agents/ layout
-      const targetRelPath = input.scope === 'global'
-        ? path.relative(projectRoot, path.join(agentsDir, file.relativePath)).replace(/\\/g, '/')
+      // Map artifact files into layout
+      const targetRelPath = isGlobal
+        ? file.relativePath
         : `.agents/${file.relativePath}`;
       assertPortableRelativePath(targetRelPath);
 
@@ -77,8 +80,8 @@ export class AgyProjectPluginProjector implements RuntimeProjector {
 
     // Auto-generate slash commands routing rule for Antigravity (AGY)
     const commandsRuleContent = generateCommandsRuleContent(artifactFiles);
-    const commandsRuleRelPath = input.scope === 'global'
-      ? path.relative(projectRoot, path.join(agentsDir, 'rules', 'commands.md')).replace(/\\/g, '/')
+    const commandsRuleRelPath = isGlobal
+      ? 'rules/commands.md'
       : '.agents/rules/commands.md';
     assertPortableRelativePath(commandsRuleRelPath);
     const commandsRuleAbsPath = path.join(projectRoot, ...commandsRuleRelPath.split('/'));
@@ -151,12 +154,15 @@ export class AgyProjectPluginProjector implements RuntimeProjector {
   async prepareUninstall(
     input: RuntimeUnprojectionInput,
   ): Promise<PreparedRuntimeUnprojection> {
-    const projectRoot = await canonicalizeRoot(path.resolve(input.projectDirectory));
-    const agentsDir = input.scope === 'global'
-      ? path.join(process.env.USERPROFILE || process.env.HOME || '', '.gemini', 'config')
+    const isGlobal = input.scope === 'global';
+    const projectRoot = isGlobal
+      ? await canonicalizeRoot(path.join(process.env.USERPROFILE || process.env.HOME || '', '.gemini', 'config'))
+      : await canonicalizeRoot(path.resolve(input.projectDirectory));
+    const agentsDir = isGlobal
+      ? projectRoot
       : path.join(projectRoot, '.agents');
 
-    const pluginLabel = input.scope === 'global' ? '.gemini/config' : '.agents';
+    const pluginLabel = isGlobal ? '.gemini/config' : '.agents';
     const pluginReference = `agy-${input.kitId}@antigravity`;
     const ownership = await loadProjectRuntimeOwnership(projectRoot);
 
