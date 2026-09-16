@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { LogoutUseCase } from '../../src/application/logout-use-case.js';
-import { AkError, EXIT_CODES } from '../../src/domain/contracts/ak-error.js';
+import { KkError, EXIT_CODES } from '../../src/domain/contracts/kk-error.js';
 import type { StoredCredential } from '../../src/infrastructure/credentials/credential-types.js';
 
 const sessionCredential: StoredCredential = {
@@ -70,7 +70,7 @@ describe('LogoutUseCase', () => {
       },
       {
         requireAccessToken: async () => {
-          throw new AkError('offline', {
+          throw new KkError('offline', {
             code: 'network_error',
             exitCode: EXIT_CODES.dependency,
           });
@@ -94,7 +94,7 @@ describe('LogoutUseCase', () => {
       { revoke: vi.fn(async () => undefined) },
       {
         load: async () => {
-          throw new AkError('corrupt', {
+          throw new KkError('corrupt', {
             code: 'security_error',
             exitCode: EXIT_CODES.security,
           });

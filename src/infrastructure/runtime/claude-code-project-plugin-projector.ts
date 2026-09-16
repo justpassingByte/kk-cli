@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import semver from 'semver';
-import { AkError, EXIT_CODES } from '../../domain/contracts/ak-error.js';
+import { KkError, EXIT_CODES } from '../../domain/contracts/kk-error.js';
 import type { TransactionFileWrite } from '../../domain/lifecycle/filesystem-transaction.js';
 import type {
   PreparedExternalStep,
@@ -665,31 +665,31 @@ function isObject(value: unknown): value is Record<string, any> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-function invalid(message: string): AkError {
-  return new AkError(message, {
+function invalid(message: string): KkError {
+  return new KkError(message, {
     code: 'invalid_input',
     exitCode: EXIT_CODES.invalidInput,
   });
 }
 
-function unsupported(message: string): AkError {
-  return new AkError(message, {
+function unsupported(message: string): KkError {
+  return new KkError(message, {
     code: 'unsupported_environment',
     exitCode: EXIT_CODES.dependency,
     remediation: 'Choose runtime claude-code with project scope.',
   });
 }
 
-function conflict(message: string): AkError {
-  return new AkError(message, {
+function conflict(message: string): KkError {
+  return new KkError(message, {
     code: 'conflict',
     exitCode: EXIT_CODES.conflict,
     remediation: 'Resolve the conflicting project file and retry.',
   });
 }
 
-function unsafe(message: string, cause?: unknown): AkError {
-  return new AkError(message, {
+function unsafe(message: string, cause?: unknown): KkError {
+  return new KkError(message, {
     code: 'security_error',
     exitCode: EXIT_CODES.security,
     remediation: 'Do not project this artifact. Resolve and verify it again.',
@@ -697,8 +697,8 @@ function unsafe(message: string, cause?: unknown): AkError {
   });
 }
 
-function runtimeFailure(message: string): AkError {
-  return new AkError(message, {
+function runtimeFailure(message: string): KkError {
+  return new KkError(message, {
     code: 'runtime_error',
     exitCode: EXIT_CODES.runtime,
     remediation: 'Inspect `claude plugin list --json`, then retry.',

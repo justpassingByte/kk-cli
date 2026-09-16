@@ -76,6 +76,7 @@ function redactLocalPaths(
   for (const [key, marker] of Object.entries({
     HOME: '$HOME',
     USERPROFILE: '%USERPROFILE%',
+    KK_HOME: '$KK_HOME',
     AGENTKIT_HOME: '$AGENTKIT_HOME',
     AGENTKIT_CLAUDE_HOME: '$AGENTKIT_CLAUDE_HOME',
     AGENTKIT_PLUGIN_DIR: '$AGENTKIT_PLUGIN_DIR',

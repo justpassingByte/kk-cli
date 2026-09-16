@@ -4,7 +4,7 @@ import type {
   TransactionExternalRecovery,
   TransactionMutation,
 } from '../../domain/lifecycle/filesystem-transaction.js';
-import { AkError } from '../../domain/contracts/ak-error.js';
+import { KkError } from '../../domain/contracts/kk-error.js';
 import type { PreparedTransaction } from './transaction-preparation.js';
 import { isSha256, sha256Bytes, sha256File } from './file-hash.js';
 import { removeFileDurably } from './durable-file-removal.js';
@@ -419,7 +419,7 @@ function externalRecoveryFailure(error: unknown): ExternalRecoveryFailure {
   return {
     phase: 'compensate',
     error: error instanceof Error ? error.message : String(error),
-    ...(error instanceof AkError
+    ...(error instanceof KkError
       ? {
           code: error.code,
           ...(error.remediation === undefined
@@ -995,12 +995,12 @@ function transactionArtifactPaths(
   const suffix = `${transactionId}-${index.toString(16).padStart(8, '0')}`;
   return phase === 'forward'
     ? {
-        temporaryRelativePath: `${prefix}.${basename}.ak-${suffix}.tmp`,
-        displacedRelativePath: `${prefix}.${basename}.ak-swap-${suffix}`,
+        temporaryRelativePath: `${prefix}.${basename}.kk-${suffix}.tmp`,
+        displacedRelativePath: `${prefix}.${basename}.kk-swap-${suffix}`,
       }
     : {
-        rollbackTemporaryRelativePath: `${prefix}.${basename}.ak-rollback-${suffix}.tmp`,
-        rollbackDisplacedRelativePath: `${prefix}.${basename}.ak-rollback-swap-${suffix}`,
+        rollbackTemporaryRelativePath: `${prefix}.${basename}.kk-rollback-${suffix}.tmp`,
+        rollbackDisplacedRelativePath: `${prefix}.${basename}.kk-rollback-swap-${suffix}`,
       };
 }
 

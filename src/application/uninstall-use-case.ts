@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { AkError, EXIT_CODES } from '../domain/contracts/ak-error.js';
+import { KkError, EXIT_CODES } from '../domain/contracts/kk-error.js';
 import type { CommandResult } from '../domain/contracts/command-result.js';
 import type { InstalledKitRecord } from '../domain/kits/installed-kit-registry.js';
 import type { OwnershipStatus } from '../domain/lifecycle/filesystem-transaction.js';
@@ -18,7 +18,7 @@ import {
   type InstalledKitStore,
 } from '../infrastructure/installed-kits/installed-kit-store.js';
 import { classifyInstalledPath } from '../infrastructure/installed-kits/ownership-classifier.js';
-import type { AgentKitPaths } from '../infrastructure/paths/agentkit-paths.js';
+import type { KkPaths } from '../infrastructure/paths/kk-paths.js';
 import type { PromptService } from '../presentation/prompt-service.js';
 
 export interface UninstallInput {
@@ -39,11 +39,11 @@ interface UninstallPreview {
   manifest_status: OwnershipStatus;
 }
 
-const NPM_GUIDANCE = 'The ak npm runtime was not removed. Remove it separately with: npm uninstall -g @bestagentkits/ak';
+const NPM_GUIDANCE = 'The kk npm runtime was not removed. Remove it separately with: npm uninstall -g kk-cli';
 
 export class UninstallUseCase {
   constructor(
-    private readonly paths: AgentKitPaths,
+    private readonly paths: KkPaths,
     private readonly store: InstalledKitStore,
     private readonly transaction: LocalFilesystemTransaction,
     private readonly prompts: PromptService,
@@ -159,7 +159,7 @@ export class UninstallUseCase {
         ...(outcome.foreign.length ? [`Foreign paths preserved: ${outcome.foreign.join(', ')}`] : []),
         ...(target.runtimeUnprojection?.sharedConfigResidue
           ? [
-              'The modified project marketplace was preserved. Run ak doctor before another kit lifecycle operation.',
+              'The modified project marketplace was preserved. Run kk doctor before another kit lifecycle operation.',
             ]
           : []),
         NPM_GUIDANCE,
@@ -230,7 +230,7 @@ async function resolveInstallation(input: UninstallInput, records: InstalledKitR
 
 async function resolveTarget(
   record: InstalledKitRecord,
-  paths: AgentKitPaths,
+  paths: KkPaths,
   projector: RuntimeProjector | undefined,
 ) {
   const rawRoot = record.scope === 'global' ? paths.home : record.projectDirectory;
@@ -244,9 +244,9 @@ async function resolveTarget(
     ? `adapters/${record.runtime}/${record.kit}`
     : isClaudeProjectPlugin
       ? pluginPrefix
-      : `.agentkit/adapters/${record.runtime}/${record.kit}`;
+      : `.kk/adapters/${record.runtime}/${record.kit}`;
   const expectedRoot = path.join(rawRoot, ...prefix.split('/'));
-  const expectedManifest = path.join(expectedRoot, '.agentkit', 'install-manifest.json');
+  const expectedManifest = path.join(expectedRoot, '.kk', 'install-manifest.json');
   if (path.resolve(record.installRoot) !== path.resolve(expectedRoot) || path.resolve(record.manifestPath) !== path.resolve(expectedManifest)) {
     throw security('Installed-kit registry points outside its canonical lifecycle location.');
   }
@@ -255,7 +255,7 @@ async function resolveTarget(
   if (isClaudeProjectPlugin) {
     if (!projector) {
       throw unsupported(
-        'Claude Code project-plugin uninstall is unavailable in this ak runtime.',
+        'Claude Code project-plugin uninstall is unavailable in this kk runtime.',
       );
     }
     runtimeUnprojection = await projector.prepareUninstall({
@@ -275,7 +275,7 @@ async function resolveTarget(
     root,
     registryRoot: await canonicalizeRoot(paths.home),
     prefix,
-    manifestRelativePath: `${prefix}/.agentkit/install-manifest.json`,
+    manifestRelativePath: `${prefix}/.kk/install-manifest.json`,
     ...(runtimeUnprojection ? { runtimeUnprojection } : {}),
   };
 }
@@ -336,37 +336,37 @@ async function removeEmptyDirectories(starts: string[], stop: string): Promise<s
   return [...new Set(removed)];
 }
 
-function invalidInput(message: string): AkError {
-  return new AkError(message, { code: 'invalid_input', exitCode: EXIT_CODES.invalidInput });
+function invalidInput(message: string): KkError {
+  return new KkError(message, { code: 'invalid_input', exitCode: EXIT_CODES.invalidInput });
 }
 
-function notFound(message: string): AkError {
-  return new AkError(message, { code: 'not_found', exitCode: EXIT_CODES.notFound });
+function notFound(message: string): KkError {
+  return new KkError(message, { code: 'not_found', exitCode: EXIT_CODES.notFound });
 }
 
-function conflict(message: string, details?: Record<string, unknown>): AkError {
-  return new AkError(message, {
+function conflict(message: string, details?: Record<string, unknown>): KkError {
+  return new KkError(message, {
     code: 'conflict',
     exitCode: EXIT_CODES.conflict,
-    remediation: 'Run ak doctor and select the exact installation ID.',
+    remediation: 'Run kk doctor and select the exact installation ID.',
     ...(details ? { details } : {}),
   });
 }
 
-function security(message: string): AkError {
-  return new AkError(message, { code: 'security_error', exitCode: EXIT_CODES.security });
+function security(message: string): KkError {
+  return new KkError(message, { code: 'security_error', exitCode: EXIT_CODES.security });
 }
 
-function unsupported(message: string): AkError {
-  return new AkError(message, {
+function unsupported(message: string): KkError {
+  return new KkError(message, {
     code: 'unsupported_environment',
     exitCode: EXIT_CODES.dependency,
-    remediation: 'Install the current @bestagentkits/ak beta and retry.',
+    remediation: 'Install the current kk-cli release and retry.',
   });
 }
 
-function cancelled(message: string, preview: UninstallPreview): AkError {
-  return new AkError(message, {
+function cancelled(message: string, preview: UninstallPreview): KkError {
+  return new KkError(message, {
     code: 'cancelled',
     exitCode: EXIT_CODES.cancelled,
     remediation: message,

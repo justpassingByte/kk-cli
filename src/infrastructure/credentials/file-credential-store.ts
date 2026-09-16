@@ -3,7 +3,7 @@ import path from 'node:path';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import lockfile from 'proper-lockfile';
-import { AkError, EXIT_CODES } from '../../domain/contracts/ak-error.js';
+import { KkError, EXIT_CODES } from '../../domain/contracts/kk-error.js';
 import {
   storedCredentialSchema,
   type CredentialStore,
@@ -24,11 +24,11 @@ export class FileCredentialStore implements CredentialStore {
       return storedCredentialSchema.parse(JSON.parse(raw));
     } catch (error) {
       if (isMissing(error)) return null;
-      if (error instanceof AkError) throw error;
-      throw new AkError('Saved login is unreadable or corrupt.', {
+      if (error instanceof KkError) throw error;
+      throw new KkError('Saved login is unreadable or corrupt.', {
         code: 'security_error',
         exitCode: EXIT_CODES.security,
-        remediation: 'Run ak logout, then log in again.',
+        remediation: 'Run kk logout, then log in again.',
         cause: error,
       });
     }
@@ -80,7 +80,7 @@ export class FileCredentialStore implements CredentialStore {
       return await action();
     } catch (error) {
       if (release) throw error;
-      throw new AkError('Another ak process is updating your login session.', {
+      throw new KkError('Another kk process is updating your login session.', {
         code: 'conflict',
         exitCode: EXIT_CODES.conflict,
         remediation: 'Wait for the other command to finish, then retry.',
@@ -111,8 +111,8 @@ export class FileCredentialStore implements CredentialStore {
     const directory = path.dirname(this.credentialPath);
     const basename = path.basename(this.credentialPath);
     return {
-      next: path.join(directory, `.${basename}.ak-next`),
-      previous: path.join(directory, `.${basename}.ak-previous`),
+      next: path.join(directory, `.${basename}.kk-next`),
+      previous: path.join(directory, `.${basename}.kk-previous`),
     };
   }
 
@@ -208,82 +208,100 @@ async function readValidCredentialFile(target: string): Promise<string> {
 
 const execFileAsync = promisify(execFile);
 
+function encodePsScript(script: string): string {
+  return Buffer.from(script, 'utf16le').toString('base64');
+}
+
 async function protectCredentialPath(target: string, directory: boolean): Promise<void> {
   if (process.platform !== 'win32') {
     await fs.chmod(target, directory ? 0o700 : 0o600);
     return;
   }
-  const sid = await currentWindowsSid();
-  const permission = directory ? `${sid}:(OI)(CI)(F)` : `${sid}:(F)`;
+  const encodedTarget = Buffer.from(target, 'utf16le').toString('base64');
+  const script = `
+$ErrorActionPreference = 'Stop'
+$targetPath = [System.Text.Encoding]::Unicode.GetString([System.Convert]::FromBase64String('${encodedTarget}'))
+$current = [System.Security.Principal.WindowsIdentity]::GetCurrent().User
+$sys = New-Object System.Security.Principal.SecurityIdentifier('S-1-5-18')
+$admins = New-Object System.Security.Principal.SecurityIdentifier('S-1-5-32-544')
+
+if (${directory ? '$true' : '$false'}) {
+  $acl = New-Object System.Security.AccessControl.DirectorySecurity
+  $acl.SetAccessRuleProtection($true, $false)
+  $acl.SetOwner($current)
+  $acl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule($current, 'FullControl', 'ContainerInherit, ObjectInherit', 'None', 'Allow')))
+  $acl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule($sys, 'FullControl', 'ContainerInherit, ObjectInherit', 'None', 'Allow')))
+  $acl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule($admins, 'FullControl', 'ContainerInherit, ObjectInherit', 'None', 'Allow')))
+  $dirInfo = New-Object System.IO.DirectoryInfo($targetPath)
+  $dirInfo.SetAccessControl($acl)
+} else {
+  $acl = New-Object System.Security.AccessControl.FileSecurity
+  $acl.SetAccessRuleProtection($true, $false)
+  $acl.SetOwner($current)
+  $acl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule($current, 'FullControl', 'Allow')))
+  $acl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule($sys, 'FullControl', 'Allow')))
+  $acl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule($admins, 'FullControl', 'Allow')))
+  $fileInfo = New-Object System.IO.FileInfo($targetPath)
+  $fileInfo.SetAccessControl($acl)
+}
+`;
   try {
-    await execFileAsync('icacls.exe', [
-      target,
-      '/inheritance:r',
-      '/grant:r',
-      permission,
-    ], { windowsHide: true, timeout: 10_000 });
+    await execFileAsync(
+      'powershell.exe',
+      ['-NoProfile', '-NonInteractive', '-EncodedCommand', encodePsScript(script)],
+      { windowsHide: true, timeout: 10_000 },
+    );
     await verifyWindowsAcl(target);
   } catch (error) {
-    throw new AkError('Windows could not protect the saved login with a private ACL.', {
+    throw new KkError('Windows could not protect the saved login with a private ACL.', {
       code: 'security_error',
       exitCode: EXIT_CODES.security,
-      remediation: 'Check your Windows account permissions, then run ak login again.',
+      remediation: 'Check your Windows account permissions, then run kk login again.',
       cause: error,
     });
   }
 }
 
-async function currentWindowsSid(): Promise<string> {
-  const { stdout } = await execFileAsync(
-    'whoami.exe',
-    ['/user', '/fo', 'csv', '/nh'],
-    { windowsHide: true, timeout: 10_000 },
-  );
-  const sid = stdout.match(/S-\d-(?:\d+-)+\d+/)?.[0];
-  if (!sid) throw new Error('Current Windows user SID was not found.');
-  return `*${sid}`;
-}
-
 async function verifyWindowsAcl(target: string): Promise<void> {
   if (process.platform !== 'win32') return;
   const encodedTarget = Buffer.from(target, 'utf16le').toString('base64');
-  const script = [
-    '$ErrorActionPreference = "Stop"',
-    `$Target = [System.Text.Encoding]::Unicode.GetString([System.Convert]::FromBase64String("${encodedTarget}"))`,
-    '$current = [System.Security.Principal.WindowsIdentity]::GetCurrent().User.Value',
-    '$allowed = @($current, "S-1-5-18", "S-1-5-32-544")',
-    '$attributes = [System.IO.File]::GetAttributes($Target)',
-    'if (($attributes -band [System.IO.FileAttributes]::Directory) -ne 0) {',
-    '  $item = [System.IO.DirectoryInfo]::new($Target)',
-    '} else {',
-    '  $item = [System.IO.FileInfo]::new($Target)',
-    '}',
-    '$sections = [System.Security.AccessControl.AccessControlSections]::Access -bor [System.Security.AccessControl.AccessControlSections]::Owner',
-    '$acl = $item.GetAccessControl($sections)',
-    'if (-not $acl.AreAccessRulesProtected) { exit 5 }',
-    '$owner = $acl.GetOwner([System.Security.Principal.SecurityIdentifier]).Value',
-    'if ($allowed -notcontains $owner) { exit 6 }',
-    '$rules = $acl.GetAccessRules($true, $true, [System.Security.Principal.SecurityIdentifier])',
-    '$hasCurrent = $false',
-    'foreach ($rule in $rules) {',
-    '  if ($rule.AccessControlType -ne "Allow") { continue }',
-    '  $sid = $rule.IdentityReference.Value',
-    '  if ($sid -eq $current) { $hasCurrent = $true }',
-    '  if ($allowed -notcontains $sid) { exit 3 }',
-    '}',
-    'if (-not $hasCurrent) { exit 4 }',
-  ].join('; ');
+  const script = `
+$ErrorActionPreference = 'Stop'
+$Target = [System.Text.Encoding]::Unicode.GetString([System.Convert]::FromBase64String('${encodedTarget}'))
+$current = [System.Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+$allowed = @($current, 'S-1-5-18', 'S-1-5-32-544')
+$attributes = [System.IO.File]::GetAttributes($Target)
+if (($attributes -band [System.IO.FileAttributes]::Directory) -ne 0) {
+  $item = New-Object System.IO.DirectoryInfo($Target)
+} else {
+  $item = New-Object System.IO.FileInfo($Target)
+}
+$sections = [System.Security.AccessControl.AccessControlSections]::Access -bor [System.Security.AccessControl.AccessControlSections]::Owner
+$acl = $item.GetAccessControl($sections)
+if (-not $acl.AreAccessRulesProtected) { exit 5 }
+$owner = $acl.GetOwner([System.Security.Principal.SecurityIdentifier]).Value
+if ($allowed -notcontains $owner) { exit 6 }
+$rules = $acl.GetAccessRules($true, $true, [System.Security.Principal.SecurityIdentifier])
+$hasCurrent = $false
+foreach ($rule in $rules) {
+  if ($rule.AccessControlType -ne 'Allow') { continue }
+  $sid = $rule.IdentityReference.Value
+  if ($sid -eq $current) { $hasCurrent = $true }
+  if ($allowed -notcontains $sid) { exit 3 }
+}
+if (-not $hasCurrent) { exit 4 }
+`;
   await execFileAsync(
     'powershell.exe',
-    ['-NoProfile', '-NonInteractive', '-Command', script],
+    ['-NoProfile', '-NonInteractive', '-EncodedCommand', encodePsScript(script)],
     { windowsHide: true, timeout: 10_000 },
   );
 }
 
-function insecurePermissions(message: string): AkError {
-  return new AkError(message, {
+function insecurePermissions(message: string): KkError {
+  return new KkError(message, {
     code: 'security_error',
     exitCode: EXIT_CODES.security,
-    remediation: 'Restrict the AgentKit home to your user account, then run ak login again.',
+    remediation: 'Restrict the KK home to your user account, then run kk login again.',
   });
 }

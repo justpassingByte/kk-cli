@@ -135,7 +135,7 @@ function assertGitHubReleaseEvidence(
     run.conclusion !== 'success' ||
     run.head_branch !== 'main' ||
     run.head_sha !== candidate.commit ||
-    run.repository?.full_name !== 'bestagentkits/ak-cli'
+    run.repository?.full_name !== 'justpassingByte/kk-cli'
   ) {
     throw new Error('GitHub run is not the successful main Publish beta run.');
   }

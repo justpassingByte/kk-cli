@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process';
-import { AkError, EXIT_CODES } from '../../domain/contracts/ak-error.js';
+import { KkError, EXIT_CODES } from '../../domain/contracts/kk-error.js';
 
 const DEFAULT_TIMEOUT_MS = 120_000;
 const MAX_OUTPUT_BYTES = 256 * 1024;
@@ -361,8 +361,8 @@ function redact(value: string): string {
     .trim();
 }
 
-function unsupported(message: string, cause?: unknown): AkError {
-  return new AkError(message, {
+function unsupported(message: string, cause?: unknown): KkError {
+  return new KkError(message, {
     code: 'unsupported_environment',
     exitCode: EXIT_CODES.dependency,
     remediation: 'Install the current Claude Code release and ensure `claude` is on PATH.',
@@ -370,8 +370,8 @@ function unsupported(message: string, cause?: unknown): AkError {
   });
 }
 
-function runtimeFailure(message: string, cause?: unknown): AkError {
-  return new AkError(message.trim(), {
+function runtimeFailure(message: string, cause?: unknown): KkError {
+  return new KkError(message.trim(), {
     code: 'runtime_error',
     exitCode: EXIT_CODES.runtime,
     remediation: 'Run `claude plugin list --json` in this project, fix the reported issue, then retry.',

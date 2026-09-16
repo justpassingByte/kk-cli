@@ -6,7 +6,7 @@ import { discoverLegacyCk } from '../../src/infrastructure/migration/legacy-ck-d
 
 describe('discoverLegacyCk', () => {
   it('finds explicit CK skill identities and leaves them mutation-protected', async () => {
-    const fixture = await mkdtemp(path.join(os.tmpdir(), 'ak-legacy-discovery-'));
+    const fixture = await mkdtemp(path.join(os.tmpdir(), 'kk-legacy-discovery-'));
     const home = path.join(fixture, 'home');
     const project = path.join(fixture, 'project');
     const skill = path.join(home, '.agents', 'skills', 'legacy-skill');
@@ -30,7 +30,7 @@ describe('discoverLegacyCk', () => {
   });
 
   it('does not treat symlinked known roots as safe to mutate', async () => {
-    const fixture = await mkdtemp(path.join(os.tmpdir(), 'ak-legacy-symlink-'));
+    const fixture = await mkdtemp(path.join(os.tmpdir(), 'kk-legacy-symlink-'));
     const home = path.join(fixture, 'home');
     const project = path.join(fixture, 'project');
     const external = path.join(fixture, 'external');
@@ -58,7 +58,7 @@ describe('discoverLegacyCk', () => {
   });
 
   it('skips a symlinked Claude root before traversing its contents', async () => {
-    const fixture = await mkdtemp(path.join(os.tmpdir(), 'ak-legacy-root-symlink-'));
+    const fixture = await mkdtemp(path.join(os.tmpdir(), 'kk-legacy-root-symlink-'));
     const home = path.join(fixture, 'home');
     const project = path.join(fixture, 'project');
     const external = path.join(fixture, 'external-claude');
@@ -87,7 +87,7 @@ describe('discoverLegacyCk', () => {
   });
 
   it('does not infer legacy settings ownership from arbitrary ck prefixes', async () => {
-    const fixture = await mkdtemp(path.join(os.tmpdir(), 'ak-legacy-settings-'));
+    const fixture = await mkdtemp(path.join(os.tmpdir(), 'kk-legacy-settings-'));
     const home = path.join(fixture, 'home');
     const project = path.join(fixture, 'project');
     const claudeHome = path.join(home, '.claude');

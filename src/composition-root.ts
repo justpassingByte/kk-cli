@@ -1,7 +1,7 @@
 import { AgentKitApiClient } from './infrastructure/auth/agentkit-api-client.js';
 import { SessionManager } from './infrastructure/auth/session-manager.js';
 import { FileCredentialStore } from './infrastructure/credentials/file-credential-store.js';
-import { resolveAgentKitPaths } from './infrastructure/paths/agentkit-paths.js';
+import { resolveKkPaths } from './infrastructure/paths/kk-paths.js';
 import { ClackPromptService } from './presentation/prompt-service.js';
 import { LoginUseCase } from './application/login-use-case.js';
 import { LogoutUseCase } from './application/logout-use-case.js';
@@ -21,7 +21,7 @@ import { FreshRuntimeHandoff } from './infrastructure/packages/fresh-runtime-han
 import { UpdateUseCase } from './application/update-use-case.js';
 import { MigrateUseCase } from './application/migrate-use-case.js';
 import { discoverLegacyCk } from './infrastructure/migration/legacy-ck-discovery.js';
-import { discoverAkExecutables } from './infrastructure/packages/executable-discovery.js';
+import { discoverKkExecutables } from './infrastructure/packages/executable-discovery.js';
 import { ClaudeCodeCliClient } from './infrastructure/runtime/claude-code-cli-client.js';
 import { checkClaudeProjectRuntimes } from './infrastructure/runtime/project-runtime-doctor-check.js';
 import { createClaudeExternalRecoveryHandler } from './infrastructure/runtime/claude-code-provider-recovery.js';
@@ -30,7 +30,7 @@ import { ExportUseCase } from './application/export-use-case.js';
 import { downloadVerifiedArtifact } from './infrastructure/registry/verified-artifact-downloader.js';
 
 export function createApplication() {
-  const paths = resolveAgentKitPaths();
+  const paths = resolveKkPaths();
   const api = new AgentKitApiClient(process.env['AGENTKIT_API_URL'] || 'https://agentkit.best');
   const credentialStore = new FileCredentialStore(paths.credentials);
   const prompts = new ClackPromptService();
@@ -95,7 +95,7 @@ export function createApplication() {
     ),
     migrate: new MigrateUseCase(
       (options) => discoverLegacyCk(options),
-      () => discoverAkExecutables(),
+      () => discoverKkExecutables(),
       init,
       prompts,
       () => transaction.recover(paths.snapshots, paths.recovery),

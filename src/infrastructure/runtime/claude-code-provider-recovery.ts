@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { AkError, EXIT_CODES } from '../../domain/contracts/ak-error.js';
+import { KkError, EXIT_CODES } from '../../domain/contracts/kk-error.js';
 import type {
   ClaudeProjectPluginRecovery,
   TransactionExternalRecovery,
@@ -153,20 +153,20 @@ async function assertMarketplaceWitness(
   }
 }
 
-function recoveryFailure(message: string): AkError {
-  return new AkError(message, {
+function recoveryFailure(message: string): KkError {
+  return new KkError(message, {
     code: 'runtime_error',
     exitCode: EXIT_CODES.runtime,
     remediation:
-      'Run ak doctor and inspect the Claude Code project plugin state before retrying.',
+      'Run kk doctor and inspect the Claude Code project plugin state before retrying.',
   });
 }
 
-function providerConflict(message: string): AkError {
-  return new AkError(message, {
+function providerConflict(message: string): KkError {
+  return new KkError(message, {
     code: 'conflict',
     exitCode: EXIT_CODES.conflict,
     remediation:
-      'Run ak doctor and inspect the Claude Code project plugin state before retrying.',
+      'Run kk doctor and inspect the Claude Code project plugin state before retrying.',
   });
 }

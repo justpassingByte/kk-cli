@@ -1,13 +1,13 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { AkError, EXIT_CODES } from '../../domain/contracts/ak-error.js';
+import { KkError, EXIT_CODES } from '../../domain/contracts/kk-error.js';
 import type { InstallManifestEntry } from '../../domain/kits/install-manifest.js';
 import { assertPortableRelativePath } from '../filesystem/path-guard.js';
 import { sha256Bytes } from '../filesystem/file-hash.js';
 
 const MAX_FILES = 10_000;
 const MAX_TOTAL_BYTES = 64 * 1024 * 1024;
-const RESERVED_MANIFEST = '.agentkit/install-manifest.json';
+const RESERVED_MANIFEST = '.kk/install-manifest.json';
 
 export interface StagedKitFile {
   relativePath: string;
@@ -69,8 +69,8 @@ export function toManifestEntries(files: StagedKitFile[]): InstallManifestEntry[
   }));
 }
 
-function unsafe(message: string): AkError {
-  return new AkError(message, {
+function unsafe(message: string): KkError {
+  return new KkError(message, {
     code: 'security_error',
     exitCode: EXIT_CODES.security,
     remediation: 'Do not install this artifact. Resolve it again or contact AgentKit support.',

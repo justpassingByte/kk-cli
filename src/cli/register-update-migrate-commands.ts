@@ -28,7 +28,7 @@ export function registerUpdateMigrateCommands(
   trustedRuntimeReadyVersion?: string,
 ): void {
   cli
-    .command('update', 'Update the ak runtime and each installed kit')
+    .command('update', 'Update the kk runtime and each installed kit')
     .action(async (raw: UpdateOptions) => {
       const options = normalizeGlobalOptions(raw);
       await executeCommand(options, () =>

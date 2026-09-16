@@ -29,8 +29,8 @@ cli.help();
 cli.version(metadata.version);
 
 const argv = normalizeArgv(process.argv);
-const parsed = cli.parse(argv, { run: false });
-if (!parsed.matchedCommand && argv.slice(2).length === 0) {
+cli.parse(argv, { run: false });
+if (!cli.matchedCommand && argv.slice(2).length === 0) {
   cli.outputHelp();
 } else {
   await cli.runMatchedCommand();

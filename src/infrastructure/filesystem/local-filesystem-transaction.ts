@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import fs from 'node:fs/promises';
-import { AkError } from '../../domain/contracts/ak-error.js';
+import { KkError } from '../../domain/contracts/kk-error.js';
 import type {
   FilesystemTransactionPlan,
   FilesystemTransactionResult,
@@ -144,7 +144,7 @@ export class LocalFilesystemTransaction {
       };
     } catch (error) {
       if (registryCommitted) {
-        throw new AkError(
+        throw new KkError(
           'Lifecycle changes committed, but the recovery journal could not be finalized.',
           {
             code: 'runtime_error',
@@ -300,7 +300,7 @@ async function compensateExternalStep(
       phase: 'compensate',
       error: errorMessage(error),
       ...(externalStep.id === undefined ? {} : { stepId: externalStep.id }),
-      ...(error instanceof AkError ? externalAkErrorEvidence(error) : {}),
+      ...(error instanceof KkError ? externalKkErrorEvidence(error) : {}),
     });
   }
 }
@@ -314,11 +314,11 @@ function externalFailureEvidence(
     phase: phase ?? 'transaction',
     error: errorMessage(error),
     ...(stepId === undefined ? {} : { stepId }),
-    ...(error instanceof AkError ? externalAkErrorEvidence(error) : {}),
+    ...(error instanceof KkError ? externalKkErrorEvidence(error) : {}),
   };
 }
 
-function externalAkErrorEvidence(error: AkError): Pick<
+function externalKkErrorEvidence(error: KkError): Pick<
   ExternalRecoveryFailure,
   'code' | 'remediation'
 > {

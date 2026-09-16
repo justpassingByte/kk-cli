@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import semver from 'semver';
 
-export const PACKAGE_NAME = '@bestagentkits/ak';
+export const PACKAGE_NAME = 'kk-cli';
 export const CANDIDATE_FILE = 'release-candidate.json';
 export const CANDIDATE_ARTIFACT_NAME = 'npm-release-candidate';
 export const RECEIPT_ARTIFACT_NAME = 'npm-publisher-receipt';
@@ -12,7 +12,7 @@ export const RECEIPT_ARTIFACT_NAME = 'npm-publisher-receipt';
 const REQUIRED_PACKAGE_FILES = [
   'LICENSE',
   'README.md',
-  'bin/ak.js',
+  'bin/kk.js',
   'dist/index.js',
   'dist/index.js.map',
   'package.json',

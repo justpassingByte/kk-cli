@@ -6,19 +6,19 @@ import {
   type DiagnosticCheck,
 } from '../domain/diagnostics/diagnostic-check.js';
 import type { CredentialStore } from '../infrastructure/credentials/credential-types.js';
-import type { AgentKitPaths } from '../infrastructure/paths/agentkit-paths.js';
+import type { KkPaths } from '../infrastructure/paths/kk-paths.js';
 import {
-  discoverAkExecutables,
-  type AkExecutableCandidate,
+  discoverKkExecutables,
+  type KkExecutableCandidate,
 } from '../infrastructure/packages/executable-discovery.js';
 import { inspectTransactionJournals } from '../infrastructure/filesystem/transaction-journal.js';
 import { executeNpmCommand } from '../infrastructure/packages/npm-command-runner.js';
 
 
 export interface DoctorDependencies {
-  paths: AgentKitPaths;
+  paths: KkPaths;
   credentialStore: CredentialStore;
-  discoverExecutables?: () => Promise<AkExecutableCandidate[]>;
+  discoverExecutables?: () => Promise<KkExecutableCandidate[]>;
   inspectTransactions?: typeof inspectTransactionJournals;
   now?: () => Date;
   checkProjectRuntimes?: () => Promise<DiagnosticCheck>;
@@ -31,9 +31,9 @@ export class DoctorUseCase {
     const checks = await Promise.all([
       this.isolateCheck('node', () => this.checkNode()),
       this.isolateCheck('npm', () => this.checkNpm()),
-      this.isolateCheck('agentkit_home', () => this.checkAgentKitHome()),
+      this.isolateCheck('kk_home', () => this.checkKkHome()),
       this.isolateCheck('login', () => this.checkLogin()),
-      this.isolateCheck('ak_path', () => this.checkExecutables()),
+      this.isolateCheck('kk_path', () => this.checkExecutables()),
       this.isolateCheck('recovery', () => this.checkRecoveryReceipts()),
       this.isolateCheck('project_plugins', () =>
         this.dependencies.checkProjectRuntimes
@@ -53,7 +53,7 @@ export class DoctorUseCase {
       data: { state, summary, checks },
       message:
         state === 'healthy'
-          ? 'AgentKit is ready.'
+          ? 'KK is ready.'
           : `Doctor found ${summary.fail} failure(s) and ${summary.warn} warning(s).`,
       humanLines: checks.flatMap((check) => [
         `${statusMarker(check.status)} ${check.summary}`,
@@ -91,16 +91,16 @@ export class DoctorUseCase {
     }
   }
 
-  private async checkAgentKitHome(): Promise<DiagnosticCheck> {
+  private async checkKkHome(): Promise<DiagnosticCheck> {
     try {
       await access(this.dependencies.paths.home, constants.R_OK | constants.W_OK);
-      return { id: 'agentkit_home', status: 'ok', summary: 'AgentKit home is writable.' };
+      return { id: 'kk_home', status: 'ok', summary: 'KK home is writable.' };
     } catch {
       return {
-        id: 'agentkit_home',
+        id: 'kk_home',
         status: 'warn',
-        summary: 'AgentKit home does not exist yet or is not writable.',
-        remediation: 'Run ak init. If it fails, verify permissions for the AgentKit home directory.',
+        summary: 'KK home does not exist yet or is not writable.',
+        remediation: 'Run kk init. If it fails, verify permissions for the KK home directory.',
       };
     }
   }
@@ -113,7 +113,7 @@ export class DoctorUseCase {
           id: 'login',
           status: 'warn',
           summary: 'No saved login.',
-          remediation: 'Run ak login before installing private kits.',
+          remediation: 'Run kk login before installing private kits.',
         };
       }
       const now = (this.dependencies.now?.() || new Date()).getTime();
@@ -134,7 +134,7 @@ export class DoctorUseCase {
           id: 'login',
           status: 'fail',
           summary: 'The saved login session has expired.',
-          remediation: 'Run ak login again.',
+          remediation: 'Run kk login again.',
           details: {
             auth_method: credential.authMethod,
             refresh_session: true,
@@ -146,8 +146,8 @@ export class DoctorUseCase {
           return {
             id: 'login',
             status: 'warn',
-            summary: 'The access token expired, but ak can refresh it on the next request.',
-            remediation: 'Retry the intended command. If refresh fails, run ak login.',
+            summary: 'The access token expired, but kk can refresh it on the next request.',
+            remediation: 'Retry the intended command. If refresh fails, run kk login.',
             details: {
               auth_method: credential.authMethod,
               refresh_session: hasRefreshFallback,
@@ -159,7 +159,7 @@ export class DoctorUseCase {
           id: 'login',
           status: 'fail',
           summary: 'The saved login has expired.',
-          remediation: 'Run ak login again.',
+          remediation: 'Run kk login again.',
           details: {
             auth_method: credential.authMethod,
             refresh_session: false,
@@ -171,7 +171,7 @@ export class DoctorUseCase {
           id: 'login',
           status: 'warn',
           summary: 'The saved refresh session has no verifiable expiry.',
-          remediation: 'Run ak login to replace this legacy credential.',
+          remediation: 'Run kk login to replace this legacy credential.',
           details: {
             auth_method: credential.authMethod,
             refresh_session: true,
@@ -183,7 +183,7 @@ export class DoctorUseCase {
           id: 'login',
           status: 'warn',
           summary: 'The saved access token has no verifiable expiry.',
-          remediation: 'Run ak login to replace this legacy credential.',
+          remediation: 'Run kk login to replace this legacy credential.',
           details: {
             auth_method: credential.authMethod,
             refresh_session: hasRefreshFallback,
@@ -204,38 +204,38 @@ export class DoctorUseCase {
         id: 'login',
         status: 'fail',
         summary: 'Saved login could not be read safely.',
-        remediation: 'Run ak logout, then ak login.',
+        remediation: 'Run kk logout, then kk login.',
       };
     }
   }
 
   private async checkExecutables(): Promise<DiagnosticCheck> {
     const candidates = await (
-      this.dependencies.discoverExecutables || discoverAkExecutables
+      this.dependencies.discoverExecutables || discoverKkExecutables
     )();
     const npmCandidates = candidates.filter((candidate) => candidate.kind === 'npm');
     const competing = candidates.filter((candidate) => candidate.kind !== 'npm');
     if (npmCandidates.length === 1 && competing.length === 0) {
       return {
-        id: 'ak_path',
+        id: 'kk_path',
         status: 'ok',
-        summary: 'One npm-managed ak executable is active on PATH.',
+        summary: 'One npm-managed kk executable is active on PATH.',
         details: { candidates: sanitizeCandidates(candidates) },
       };
     }
     if (candidates.length === 0) {
       return {
-        id: 'ak_path',
+        id: 'kk_path',
         status: 'fail',
-        summary: 'No ak executable was found on PATH.',
-        remediation: 'Run npm install --global @bestagentkits/ak@beta.',
+        summary: 'No kk executable was found on PATH.',
+        remediation: 'Run npm install --global github:justpassingByte/kk-cli.',
       };
     }
     return {
-      id: 'ak_path',
+      id: 'kk_path',
       status: 'warn',
-      summary: `${candidates.length} ak executable candidates were found on PATH.`,
-      remediation: 'Run ak migrate for copy-ready PATH guidance. AgentKit will not edit PATH.',
+      summary: `${candidates.length} kk executable candidates were found on PATH.`,
+      remediation: 'Run kk migrate for copy-ready PATH guidance.',
       details: { candidates: sanitizeCandidates(candidates) },
     };
   }
@@ -267,7 +267,7 @@ export class DoctorUseCase {
           id: 'recovery',
           status: 'warn',
           summary: `${entries.length} recovery receipt(s) need review.`,
-          remediation: 'Run ak doctor --verbose and review the recovery directory before retrying.',
+          remediation: 'Run kk doctor --verbose and review the recovery directory before retrying.',
           details: { receipt_count: entries.length },
         };
   }
@@ -283,7 +283,7 @@ export class DoctorUseCase {
         id,
         status: 'fail',
         summary: `Doctor could not complete the ${id.replaceAll('_', ' ')} check.`,
-        remediation: 'Retry ak doctor. If this persists, prepare a diagnostic report for support.',
+        remediation: 'Retry kk doctor. If this persists, prepare a diagnostic report for support.',
       };
     }
   }
@@ -295,7 +295,7 @@ function parseExpiry(value: string | undefined): number | undefined {
   return Number.isFinite(expiry) ? expiry : undefined;
 }
 
-function sanitizeCandidates(candidates: AkExecutableCandidate[]) {
+function sanitizeCandidates(candidates: KkExecutableCandidate[]) {
   return candidates.map((candidate, index) => ({
     precedence: index + 1,
     kind: candidate.kind,

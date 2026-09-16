@@ -1,5 +1,5 @@
 import semver from 'semver';
-import { AkError, EXIT_CODES } from '../domain/contracts/ak-error.js';
+import { KkError, EXIT_CODES } from '../domain/contracts/kk-error.js';
 import type { CommandResult } from '../domain/contracts/command-result.js';
 import type { InstalledKitRecord } from '../domain/kits/installed-kit-registry.js';
 import type { InstalledKitStore } from '../infrastructure/installed-kits/installed-kit-store.js';
@@ -85,10 +85,10 @@ export class UpdateUseCase {
       }
     }
     if (failures.length > 0) {
-      throw new AkError('Some kits could not be updated.', {
+      throw new KkError('Some kits could not be updated.', {
         code: 'dependency_unavailable',
         exitCode: EXIT_CODES.dependency,
-        remediation: 'Review the failed kits below, fix the first reported cause, then run ak update again.',
+        remediation: 'Review the failed kits below, fix the first reported cause, then run kk update again.',
         details: { updated, skipped, failures },
       });
     }
@@ -107,7 +107,7 @@ export class UpdateUseCase {
       ...(unsupported.length
         ? {
             humanLines: [
-              `${unsupported.length} legacy or unsupported installation(s) were preserved. Run ak migrate for guidance.`,
+              `${unsupported.length} legacy or unsupported installation(s) were preserved. Run kk migrate for guidance.`,
             ],
           }
         : {}),
@@ -123,7 +123,7 @@ export class UpdateUseCase {
     if (latest === this.currentVersion) return false;
     return this.confirm(
       input,
-      `Update the ak runtime from ${this.currentVersion} to ${latest}?`,
+      `Update the kk runtime from ${this.currentVersion} to ${latest}?`,
     );
   }
 
@@ -139,10 +139,10 @@ export class UpdateUseCase {
     if (!input.noInteractive && this.isInteractive()) {
       return this.prompts.confirm(message, true);
     }
-    throw new AkError('Update needs confirmation.', {
+    throw new KkError('Update needs confirmation.', {
       code: 'cancelled',
       exitCode: EXIT_CODES.cancelled,
-      remediation: 'Run ak update --yes for a non-interactive update.',
+      remediation: 'Run kk update --yes for a non-interactive update.',
     });
   }
 

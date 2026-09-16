@@ -4,19 +4,19 @@ import path from 'node:path';
 
 const MAX_WINDOWS_SHIM_BYTES = 32 * 1024;
 
-export type AkExecutableKind = 'npm' | 'legacy_native_candidate' | 'unknown';
+export type KkExecutableKind = 'npm' | 'legacy_native_candidate' | 'unknown';
 
-export interface AkExecutableCandidate {
+export interface KkExecutableCandidate {
   path: string;
   realPath: string;
-  kind: AkExecutableKind;
+  kind: KkExecutableKind;
   packageVersion?: string;
 }
 
-export async function discoverAkExecutables(
+export async function discoverKkExecutables(
   environment: NodeJS.ProcessEnv = process.env,
   platform: NodeJS.Platform = process.platform,
-): Promise<AkExecutableCandidate[]> {
+): Promise<KkExecutableCandidate[]> {
   const pathEntries = (environment.PATH || '')
     .split(platform === 'win32' ? ';' : path.delimiter)
     .map((entry) => entry.trim())
@@ -24,8 +24,8 @@ export async function discoverAkExecutables(
   const names =
     platform === 'win32'
       ? windowsExecutableNames(environment.PATHEXT)
-      : ['ak'];
-  const candidates = new Map<string, AkExecutableCandidate>();
+      : ['kk'];
+  const candidates = new Map<string, KkExecutableCandidate>();
 
   for (const directory of pathEntries) {
     for (const name of names) {
@@ -47,9 +47,9 @@ export async function discoverAkExecutables(
 
 async function classifyExecutable(
   executablePath: string,
-): Promise<Pick<AkExecutableCandidate, 'kind' | 'packageVersion'>> {
+): Promise<Pick<KkExecutableCandidate, 'kind' | 'packageVersion'>> {
   const packageMetadata = await findOwningPackage(executablePath);
-  if (packageMetadata?.name === '@bestagentkits/ak') {
+  if (packageMetadata?.name === 'kk-cli') {
     return {
       kind: 'npm',
       ...(packageMetadata.version ? { packageVersion: packageMetadata.version } : {}),
@@ -75,30 +75,27 @@ async function findWindowsShimPackage(
   const state = await lstat(executablePath).catch(() => undefined);
   if (!state?.isFile() || state.size > MAX_WINDOWS_SHIM_BYTES) return undefined;
   const shim = await readFile(executablePath, 'utf8').catch(() => undefined);
-  if (!shim || !isBoundedNpmAkShim(shim)) return undefined;
+  if (!shim || !isBoundedNpmKkShim(shim)) return undefined;
 
-  const packageRoot = path.join(
-    path.dirname(executablePath),
-    'node_modules',
-    '@bestagentkits',
-    'ak',
-  );
-  const metadata = await readPackageMetadata(path.join(packageRoot, 'package.json'));
-  if (metadata?.name !== '@bestagentkits/ak' || metadata.bin !== 'bin/ak.js') {
-    return undefined;
+  const candidateRoots = [
+    path.join(path.dirname(executablePath), 'node_modules', 'kk-cli'),
+  ];
+  for (const packageRoot of candidateRoots) {
+    const metadata = await readPackageMetadata(path.join(packageRoot, 'package.json'));
+    if (metadata?.name === 'kk-cli') {
+      return metadata.version ? { version: metadata.version } : {};
+    }
   }
-  const binPath = path.join(packageRoot, 'bin', 'ak.js');
-  if (!(await lstat(binPath).catch(() => undefined))?.isFile()) return undefined;
-  return metadata.version ? { version: metadata.version } : {};
+  return undefined;
 }
 
-function isBoundedNpmAkShim(shim: string): boolean {
+function isBoundedNpmKkShim(shim: string): boolean {
   if (Buffer.byteLength(shim) > MAX_WINDOWS_SHIM_BYTES || shim.includes('\0')) return false;
   const invokesNode = /(?:^|[ "'])node(?:\.exe)?(?:["' ]|$)|%~?dp0%[\\/]node\.exe/i.test(
     shim,
   );
   const targetsPackage =
-    /%~?dp0%[\\/]node_modules[\\/]@bestagentkits[\\/]ak[\\/]bin[\\/]ak\.js/i.test(
+    /%~?dp0%[\\/]node_modules[\\/]kk-cli[\\/]bin[\\/]kk\.js/i.test(
       shim,
     );
   return invokesNode && targetsPackage && /%\*/.test(shim);
@@ -142,8 +139,10 @@ async function readPackageMetadata(
     const bin =
       typeof parsed.bin === 'string'
         ? parsed.bin
-        : isRecord(parsed.bin) && typeof parsed.bin['ak'] === 'string'
-          ? parsed.bin['ak']
+        : isRecord(parsed.bin)
+          ? (typeof parsed.bin['kk'] === 'string'
+              ? parsed.bin['kk']
+              : undefined)
           : undefined;
     return {
       ...(typeof parsed.name === 'string' ? { name: parsed.name } : {}),
@@ -169,7 +168,7 @@ function windowsExecutableNames(pathExt: string | undefined): string[] {
     .split(';')
     .map((extension) => extension.trim().toLowerCase())
     .filter(Boolean);
-  return ['ak', ...extensions.map((extension) => `ak${extension}`)];
+  return extensions.map((extension) => `kk${extension}`);
 }
 
 function normalizeKey(value: string, platform: NodeJS.Platform): string {

@@ -12,8 +12,8 @@ describe('UpdateUseCase', () => {
     const launch = vi.fn(async () => undefined);
     const runtime = {
       update: vi.fn(async () => ({
-        packageRoot: '/npm/ak',
-        entrypoint: '/npm/ak/bin/ak.js',
+        packageRoot: '/npm/kk',
+        entrypoint: '/npm/kk/bin/kk.js',
         version: '0.1.0-beta.1',
         npmExecutable: 'npm',
       })),
@@ -48,8 +48,8 @@ describe('UpdateUseCase', () => {
     const runtime = {
       latestVersion: vi.fn(async () => '0.1.0-beta.1'),
       update: vi.fn(async () => ({
-        packageRoot: '/npm/ak',
-        entrypoint: '/npm/ak/bin/ak.js',
+        packageRoot: '/npm/kk',
+        entrypoint: '/npm/kk/bin/kk.js',
         version: '0.1.0-beta.1',
         npmExecutable: 'npm',
       })),
@@ -156,7 +156,7 @@ function record(kit: string) {
     channel: 'stable' as const,
     projectDirectory: '/tmp/project',
     installRoot: `/tmp/project/ak-${kit}`,
-    manifestPath: `/tmp/project/ak-${kit}/.agentkit/install-manifest.json`,
+    manifestPath: `/tmp/project/ak-${kit}/.kk/install-manifest.json`,
     files: [],
     installedAt: '2026-07-28T00:00:00.000Z',
     updatedAt: '2026-07-28T00:00:00.000Z',

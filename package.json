@@ -1,21 +1,20 @@
 {
-  "name": "@bestagentkits/ak",
-  "version": "0.1.0-beta.0",
-  "description": "AgentKit CLI for installing, updating, and managing agent kits",
+  "name": "kk-cli",
+  "version": "2.16.0",
+  "description": "KK CLI for installing, updating, and managing agent kits",
   "type": "module",
   "license": "MIT",
   "author": "Duy Nguyen",
-  "homepage": "https://agentkit.best",
+  "homepage": "https://github.com/justpassingByte/kk-cli",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bestagentkits/ak-cli.git"
+    "url": "git+https://github.com/justpassingByte/kk-cli.git"
   },
   "bugs": {
-    "url": "https://github.com/bestagentkits/agentkit-support/issues"
+    "url": "https://github.com/justpassingByte/kk-cli/issues"
   },
   "bin": {
-    "kk": "bin/ak.js",
-    "ak": "bin/ak.js"
+    "kk": "bin/kk.js"
   },
   "files": [
     "bin",

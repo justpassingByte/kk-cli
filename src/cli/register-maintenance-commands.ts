@@ -1,6 +1,6 @@
 import type { CAC } from 'cac';
 import type { Application } from '../composition-root.js';
-import { AkError, EXIT_CODES } from '../domain/contracts/ak-error.js';
+import { KkError, EXIT_CODES } from '../domain/contracts/kk-error.js';
 import { executeCommand } from './execute-command.js';
 import { normalizeGlobalOptions } from './global-options.js';
 
@@ -27,7 +27,7 @@ export function registerMaintenanceCommands(cli: CAC, app: Application): void {
 
 function validateDestination(value: string): 'file' | 'github' | 'email' {
   if (value === 'file' || value === 'github' || value === 'email') return value;
-  throw new AkError('Report destination must be file, github, or email.', {
+  throw new KkError('Report destination must be file, github, or email.', {
     code: 'invalid_input',
     exitCode: EXIT_CODES.invalidInput,
     remediation: 'Use --report file, --report github, or --report email.',

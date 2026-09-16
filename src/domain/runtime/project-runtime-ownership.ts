@@ -1,6 +1,6 @@
 export const PROJECT_RUNTIME_OWNERSHIP_VERSION = 1 as const;
 export const PROJECT_RUNTIME_OWNERSHIP_RELATIVE_PATH =
-  '.agentkit/runtime-ownership.json';
+  '.kk/runtime-ownership.json';
 
 export interface OwnedProjectPlugin {
   kitId: string;

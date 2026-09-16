@@ -141,7 +141,7 @@ describe('Claude provider recovery', () => {
 });
 
 async function commitDescriptor(): Promise<ClaudeProjectPluginRecovery> {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'ak-provider-recovery-'));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'kk-provider-recovery-'));
   temporaryDirectories.push(root);
   const contents = '{"name":"agentkit-local","plugins":[]}\n';
   await fs.mkdir(path.join(root, '.claude-plugin'));

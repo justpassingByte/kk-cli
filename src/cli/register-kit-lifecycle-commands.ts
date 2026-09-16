@@ -2,7 +2,7 @@ import type { CAC } from 'cac';
 import type { InitUseCase } from '../application/init-use-case.js';
 import type { KitScope } from '../application/kit-install-plan.js';
 import type { UninstallUseCase } from '../application/uninstall-use-case.js';
-import { AkError, EXIT_CODES } from '../domain/contracts/ak-error.js';
+import { KkError, EXIT_CODES } from '../domain/contracts/kk-error.js';
 import type {
   RegistryChannel,
   RegistryRuntime,
@@ -124,8 +124,8 @@ function parseScope(value: string): KitScope {
   throw invalid('Scope must be global or project.');
 }
 
-function invalid(message: string): AkError {
-  return new AkError(message, {
+function invalid(message: string): KkError {
+  return new KkError(message, {
     code: 'invalid_input',
     exitCode: EXIT_CODES.invalidInput,
   });

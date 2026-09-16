@@ -8,7 +8,7 @@ afterEach(() => {
 });
 
 function cliFixture() {
-  const cli = cac('ak');
+  const cli = cac('kk');
   cli
     .option('-y, --yes', 'Confirm the proposed operation')
     .option('--no-interactive', 'Never prompt for input')
@@ -24,7 +24,7 @@ function cliFixture() {
 }
 
 async function run(cli: ReturnType<typeof cac>, argv: string[]): Promise<void> {
-  cli.parse(['node', 'ak', ...argv], { run: false });
+  cli.parse(['node', 'kk', ...argv], { run: false });
   await cli.runMatchedCommand();
 }
 

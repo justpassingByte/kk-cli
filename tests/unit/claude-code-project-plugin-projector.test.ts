@@ -122,7 +122,7 @@ describe('ClaudeCodeProjectPluginProjector', () => {
       '.claude-plugin/marketplace.json',
     ]);
     expect(prepared.metadataWrites.map((write) => write.relativePath)).toEqual([
-      '.agentkit/runtime-ownership.json',
+      '.kk/runtime-ownership.json',
     ]);
     const projectedMarketplace = JSON.parse(String(prepared.writes.at(-1)?.contents)) as {
       custom: unknown;
@@ -339,7 +339,7 @@ function baseInput(projectDirectory: string, artifactDirectory: string): Runtime
 async function createFixture(
   manifest: Record<string, unknown> = { name: 'ak-engineer', version: '1.2.3' },
 ): Promise<{ project: string; artifact: string }> {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'ak-projector-'));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'kk-projector-'));
   temporaryDirectories.push(root);
   const project = path.join(root, 'Project with spaces 🚀');
   const artifact = path.join(root, 'verified artifact');
@@ -376,9 +376,9 @@ async function seedOwnership(
     residues: {},
     updatedAt: '2026-07-28T00:00:00.000Z',
   };
-  await fs.mkdir(path.join(project, '.agentkit'), { recursive: true });
+  await fs.mkdir(path.join(project, '.kk'), { recursive: true });
   await fs.writeFile(
-    path.join(project, '.agentkit', 'runtime-ownership.json'),
+    path.join(project, '.kk', 'runtime-ownership.json'),
     serializeProjectRuntimeOwnership(ownership),
   );
 }

@@ -15,7 +15,7 @@ describe('FileCredentialStore', () => {
   it(
     'atomically saves and reloads a private credential',
     async () => {
-      const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'ak-credential-test-'));
+      const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'kk-credential-test-'));
       temporaryDirectories.push(directory);
       const credentialPath = path.join(directory, 'credentials.json');
       const store = new FileCredentialStore(credentialPath);
@@ -32,10 +32,10 @@ describe('FileCredentialStore', () => {
 
       expect(await store.load()).toEqual(credential);
       await expect(
-        fs.lstat(path.join(directory, '.credentials.json.ak-next')),
+        fs.lstat(path.join(directory, '.credentials.json.kk-next')),
       ).rejects.toMatchObject({ code: 'ENOENT' });
       await expect(
-        fs.lstat(path.join(directory, '.credentials.json.ak-previous')),
+        fs.lstat(path.join(directory, '.credentials.json.kk-previous')),
       ).rejects.toMatchObject({ code: 'ENOENT' });
       if (process.platform !== 'win32') {
         expect((await fs.stat(credentialPath)).mode & 0o077).toBe(0);
@@ -45,7 +45,7 @@ describe('FileCredentialStore', () => {
   );
 
   it('clear is idempotent', async () => {
-    const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'ak-credential-test-'));
+    const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'kk-credential-test-'));
     temporaryDirectories.push(directory);
     const store = new FileCredentialStore(path.join(directory, 'missing.json'));
     await store.clear();
@@ -56,7 +56,7 @@ describe('FileCredentialStore', () => {
   it(
     'promotes a synced next credential after an interrupted replacement',
     async () => {
-      const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'ak-credential-test-'));
+      const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'kk-credential-test-'));
       temporaryDirectories.push(directory);
       const credentialPath = path.join(directory, 'credentials.json');
       const oldCredential = credential('old-access');
@@ -64,13 +64,13 @@ describe('FileCredentialStore', () => {
       const store = new FileCredentialStore(credentialPath);
       await store.save(oldCredential);
       await writePrivateJson(
-        path.join(directory, '.credentials.json.ak-next'),
+        path.join(directory, '.credentials.json.kk-next'),
         rotatedCredential,
       );
 
       await expect(store.load()).resolves.toEqual(rotatedCredential);
       await expect(
-        fs.lstat(path.join(directory, '.credentials.json.ak-next')),
+        fs.lstat(path.join(directory, '.credentials.json.kk-next')),
       ).rejects.toMatchObject({ code: 'ENOENT' });
     },
     30_000,
@@ -79,13 +79,13 @@ describe('FileCredentialStore', () => {
   it(
     'restores the previous credential if displacement finished before replacement',
     async () => {
-      const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'ak-credential-test-'));
+      const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'kk-credential-test-'));
       temporaryDirectories.push(directory);
       const credentialPath = path.join(directory, 'credentials.json');
       const oldCredential = credential('old-access');
       const previousPath = path.join(
         directory,
-        '.credentials.json.ak-previous',
+        '.credentials.json.kk-previous',
       );
       const store = new FileCredentialStore(credentialPath);
       await store.save(oldCredential);
@@ -93,7 +93,7 @@ describe('FileCredentialStore', () => {
 
       await expect(store.load()).resolves.toEqual(oldCredential);
       await expect(
-        fs.lstat(path.join(directory, '.credentials.json.ak-previous')),
+        fs.lstat(path.join(directory, '.credentials.json.kk-previous')),
       ).rejects.toMatchObject({ code: 'ENOENT' });
     },
     30_000,

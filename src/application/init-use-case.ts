@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { AkError, EXIT_CODES } from '../domain/contracts/ak-error.js';
+import { KkError, EXIT_CODES } from '../domain/contracts/kk-error.js';
 import type { CommandResult } from '../domain/contracts/command-result.js';
 import type {
   RegistryChannel,
@@ -11,7 +11,7 @@ import type { RuntimeProjector } from '../domain/runtime/runtime-projector.js';
 import type { LocalFilesystemTransaction } from '../infrastructure/filesystem/local-filesystem-transaction.js';
 import type { InstalledKitStore } from '../infrastructure/installed-kits/installed-kit-store.js';
 import { collectStagedKitFiles } from '../infrastructure/kits/staged-kit-files.js';
-import type { AgentKitPaths } from '../infrastructure/paths/agentkit-paths.js';
+import type { KkPaths } from '../infrastructure/paths/kk-paths.js';
 import type { PromptService } from '../presentation/prompt-service.js';
 import { prepareKitInstall, type KitScope } from './kit-install-plan.js';
 import { extractLocalKit } from '../infrastructure/registry/local-kit-extractor.js';
@@ -42,7 +42,7 @@ export class InitUseCase {
       manifest: RemoteRegistryManifest,
       destination: string,
     ) => Promise<void>,
-    private readonly paths: AgentKitPaths,
+    private readonly paths: KkPaths,
     private readonly store: InstalledKitStore,
     private readonly transaction: LocalFilesystemTransaction,
     private readonly prompts: PromptService,
@@ -158,13 +158,13 @@ export class InitUseCase {
       throw cancelled('Nothing changed.');
     }
     throw cancelled(
-      `Installation needs confirmation. Review the target, then run ak init --kit ${manifest.kitId} --runtime ${manifest.runtime} --scope ${input.scope} --yes.`,
+      `Installation needs confirmation. Review the target, then run kk init --kit ${manifest.kitId} --runtime ${manifest.runtime} --scope ${input.scope} --yes.`,
     );
   }
 }
 
-function cancelled(message: string): AkError {
-  return new AkError(message, {
+function cancelled(message: string): KkError {
+  return new KkError(message, {
     code: 'cancelled',
     exitCode: EXIT_CODES.cancelled,
     ...(message.startsWith('Installation needs') ? { remediation: message } : {}),

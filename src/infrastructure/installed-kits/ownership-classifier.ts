@@ -1,5 +1,5 @@
 import fs from 'node:fs/promises';
-import { AkError, EXIT_CODES } from '../../domain/contracts/ak-error.js';
+import { KkError, EXIT_CODES } from '../../domain/contracts/kk-error.js';
 import type {
   OwnershipClassification,
   OwnershipStatus,
@@ -14,7 +14,7 @@ export async function classifyInstalledPath(
 ): Promise<OwnershipClassification> {
   const normalizedExpected = expectedSha256?.toLowerCase();
   if (normalizedExpected !== undefined && !isSha256(normalizedExpected)) {
-    throw new AkError(`Invalid ownership hash for ${relativePath}.`, {
+    throw new KkError(`Invalid ownership hash for ${relativePath}.`, {
       code: 'security_error',
       exitCode: EXIT_CODES.security,
       remediation: 'Repair the installed-kit ownership metadata before retrying.',

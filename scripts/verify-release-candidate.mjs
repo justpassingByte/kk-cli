@@ -22,12 +22,12 @@ const metadata = JSON.parse(await readFile('package.json', 'utf8'));
 if (
   metadata.name !== PACKAGE_NAME ||
   metadata.version !== candidate.version ||
-  metadata.bin?.ak !== 'bin/ak.js'
+  metadata.bin?.kk !== 'bin/kk.js'
 ) {
   throw new Error('Checked-out package metadata differs from the candidate.');
 }
 
-const prefix = await mkdtemp(path.join(os.tmpdir(), 'ak-release-canary-'));
+const prefix = await mkdtemp(path.join(os.tmpdir(), 'kk-release-canary-'));
 try {
   npmExec([
     'install',
@@ -41,16 +41,16 @@ try {
   ]);
   const packageRoot =
     process.platform === 'win32'
-      ? path.join(prefix, 'node_modules', '@bestagentkits', 'ak')
-      : path.join(prefix, 'lib', 'node_modules', '@bestagentkits', 'ak');
-  const entrypoint = path.join(packageRoot, 'bin', 'ak.js');
+      ? path.join(prefix, 'node_modules', 'kk-cli')
+      : path.join(prefix, 'lib', 'node_modules', 'kk-cli');
+  const entrypoint = path.join(packageRoot, 'bin', 'kk.js');
   const version = execFileSync(process.execPath, [entrypoint, '--version'], {
     encoding: 'utf8',
     windowsHide: true,
   }).trim();
   if (
     version !== candidate.version &&
-    !version.startsWith(`ak/${candidate.version} `)
+    !version.startsWith(`kk/${candidate.version} `)
   ) {
     throw new Error(`Installed candidate reported unexpected version ${version}.`);
   }

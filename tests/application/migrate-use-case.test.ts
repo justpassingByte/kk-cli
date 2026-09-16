@@ -23,7 +23,7 @@ describe('MigrateUseCase', () => {
     const migrate = new MigrateUseCase(
       discoverLegacy,
       async () => [
-        { path: '/usr/local/bin/ak', realPath: '/usr/local/bin/ak', kind: 'legacy_native_candidate' },
+        { path: '/usr/local/bin/legacy-cli', realPath: '/usr/local/bin/legacy-cli', kind: 'legacy_native_candidate' },
       ],
       init as unknown as InitUseCase,
       prompts(),

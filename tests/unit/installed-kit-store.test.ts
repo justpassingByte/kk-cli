@@ -25,7 +25,7 @@ afterEach(async () => {
 });
 
 async function temporaryRoot(): Promise<string> {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'ak-installed-kit-test-'));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'kk-installed-kit-test-'));
   temporaryDirectories.push(root);
   return fs.realpath(root);
 }
@@ -35,7 +35,7 @@ describe('InstalledKitStore', () => {
     const root = await temporaryRoot();
     const installRoot = path.join(root, 'kit');
     await fs.mkdir(installRoot);
-    const manifestPath = path.join(installRoot, '.agentkit', 'install-manifest.json');
+    const manifestPath = path.join(installRoot, '.kk', 'install-manifest.json');
     const store = new InstalledKitStore(path.join(root, 'installed-kits.json'));
     const now = '2026-07-28T00:00:00.000Z';
     const registry = store.prepareUpsert(

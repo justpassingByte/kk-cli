@@ -6,7 +6,7 @@ import { InitUseCase } from '../../src/application/init-use-case.js';
 import type { RemoteRegistryManifest } from '../../src/domain/registry/remote-registry-manifest.js';
 import { LocalFilesystemTransaction } from '../../src/infrastructure/filesystem/local-filesystem-transaction.js';
 import { InstalledKitStore } from '../../src/infrastructure/installed-kits/installed-kit-store.js';
-import type { AgentKitPaths } from '../../src/infrastructure/paths/agentkit-paths.js';
+import type { KkPaths } from '../../src/infrastructure/paths/kk-paths.js';
 import { ClaudeCodeProjectPluginProjector } from '../../src/infrastructure/runtime/claude-code-project-plugin-projector.js';
 import type { PromptService } from '../../src/presentation/prompt-service.js';
 
@@ -129,7 +129,7 @@ export async function createLifecycleFixture() {
   const project = path.join(root, 'Project with spaces 🚀');
   await fs.mkdir(home);
   await fs.mkdir(project);
-  const paths: AgentKitPaths = {
+  const paths: KkPaths = {
     home: await fs.realpath(home),
     credentials: path.join(home, 'credentials.json'),
     installedKits: path.join(home, 'installed-kits.json'),

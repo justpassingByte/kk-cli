@@ -35,7 +35,7 @@ describe('verified artifact pipeline', () => {
           headers: { 'content-length': String(archive.length) },
         }),
     });
-    const parent = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'ak-registry-test-'));
+    const parent = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'kk-registry-test-'));
     cleanupPaths.push(parent);
     const destination = path.join(parent, 'package');
 
@@ -101,7 +101,7 @@ describe('verified artifact pipeline', () => {
     },
   ])('rejects $name entries', async ({ entries, expected }) => {
     const archive = await createTarGzip(entries);
-    const parent = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'ak-registry-test-'));
+    const parent = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'kk-registry-test-'));
     cleanupPaths.push(parent);
     await expect(
       extractVerifiedKitArtifact(archive, path.join(parent, 'package'), 'engineer'),
@@ -112,7 +112,7 @@ describe('verified artifact pipeline', () => {
     const archive = await createTarGzip([
       { name: 'engineer/README.md', body: 'missing manifest\n' },
     ]);
-    const parent = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'ak-registry-test-'));
+    const parent = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'kk-registry-test-'));
     cleanupPaths.push(parent);
     await expect(
       extractVerifiedKitArtifact(archive, path.join(parent, 'package'), 'engineer'),
@@ -124,7 +124,7 @@ describe('verified artifact pipeline', () => {
       { name: 'engineer/kit.yaml', body: 'name: engineer\n' },
       { name: 'other/README.md', body: 'unexpected root\n' },
     ]);
-    const parent = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'ak-registry-test-'));
+    const parent = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'kk-registry-test-'));
     cleanupPaths.push(parent);
 
     await expect(

@@ -1,4 +1,4 @@
-import { AkError, EXIT_CODES } from '../../domain/contracts/ak-error.js';
+import { KkError, EXIT_CODES } from '../../domain/contracts/kk-error.js';
 
 export async function readBoundedResponse(
   response: Response,
@@ -34,8 +34,8 @@ export async function readBoundedResponse(
   return Buffer.concat(chunks, total);
 }
 
-function limitError(message: string): AkError {
-  return new AkError(message, {
+function limitError(message: string): KkError {
+  return new KkError(message, {
     code: 'security_error',
     exitCode: EXIT_CODES.security,
     remediation: 'Do not install this artifact. Retry later or contact AgentKit support.',

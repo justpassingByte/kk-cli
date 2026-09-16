@@ -4,7 +4,7 @@ import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import zlib from 'node:zlib';
 import tar from 'tar-stream';
-import { AkError, EXIT_CODES } from '../../domain/contracts/ak-error.js';
+import { KkError, EXIT_CODES } from '../../domain/contracts/kk-error.js';
 
 const execFileAsync = promisify(execFile);
 
@@ -23,7 +23,7 @@ export async function extractLocalKit(
   try {
     stat = await fs.stat(resolvedSource);
   } catch (error) {
-    throw new AkError(`Source path "${resolvedSource}" does not exist.`, {
+    throw new KkError(`Source path "${resolvedSource}" does not exist.`, {
       code: 'invalid_input',
       exitCode: EXIT_CODES.invalidInput,
       remediation: 'Provide a valid path to a kit .zip, .tar.gz, or directory using --from <path>.',
@@ -65,7 +65,7 @@ async function extractZipFile(zipPath: string, destination: string): Promise<voi
       });
       return;
     } catch (error) {
-      throw new AkError('Failed to extract zip file on Windows.', {
+      throw new KkError('Failed to extract zip file on Windows.', {
         code: 'security_error',
         exitCode: EXIT_CODES.security,
         remediation: 'Ensure the zip file is valid and not corrupted.',
@@ -80,7 +80,7 @@ async function extractZipFile(zipPath: string, destination: string): Promise<voi
       timeout: 60_000,
     });
   } catch (error) {
-    throw new AkError('Failed to extract zip file with unzip command.', {
+    throw new KkError('Failed to extract zip file with unzip command.', {
       code: 'security_error',
       exitCode: EXIT_CODES.security,
       remediation: 'Ensure unzip is installed and the zip file is valid.',

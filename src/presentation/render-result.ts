@@ -1,5 +1,5 @@
 import pc from 'picocolors';
-import type { AkError } from '../domain/contracts/ak-error.js';
+import type { KkError } from '../domain/contracts/kk-error.js';
 import type { CommandResult, GlobalOptions } from '../domain/contracts/command-result.js';
 
 export function renderResult(result: CommandResult, options: GlobalOptions): void {
@@ -15,7 +15,7 @@ export function renderResult(result: CommandResult, options: GlobalOptions): voi
   for (const line of result.humanLines ?? []) process.stdout.write(`${line}\n`);
 }
 
-export function renderError(error: AkError, options: GlobalOptions): void {
+export function renderError(error: KkError, options: GlobalOptions): void {
   if (options.json) {
     process.stderr.write(
       `${JSON.stringify({

@@ -1,6 +1,6 @@
 import os from 'node:os';
 import type { CommandResult } from '../domain/contracts/command-result.js';
-import { AkError, EXIT_CODES } from '../domain/contracts/ak-error.js';
+import { KkError, EXIT_CODES } from '../domain/contracts/kk-error.js';
 import { redactReport } from '../domain/diagnostics/redact-report.js';
 import type {
   DiagnosticReportStore,
@@ -36,7 +36,7 @@ export class DiagnosticReportUseCase {
     const next =
       destination === 'file'
         ? undefined
-        : `ak doctor --submit ${stored.id} --yes`;
+        : `kk doctor --submit ${stored.id} --yes`;
     return {
       kind: 'doctor.report_preview',
       data: {
@@ -63,15 +63,15 @@ export class DiagnosticReportUseCase {
 
   async submit(id: string, yes: boolean): Promise<CommandResult> {
     if (!yes) {
-      throw new AkError('Sending a diagnostic report requires explicit confirmation.', {
+      throw new KkError('Sending a diagnostic report requires explicit confirmation.', {
         code: 'cancelled',
         exitCode: EXIT_CODES.cancelled,
-        remediation: `Review the saved report, then run ak doctor --submit ${id} --yes.`,
+        remediation: `Review the saved report, then run kk doctor --submit ${id} --yes.`,
       });
     }
     const report = await this.store.load(id);
     if (report.destination === 'file') {
-      throw new AkError('This report was saved for local use and has no send destination.', {
+      throw new KkError('This report was saved for local use and has no send destination.', {
         code: 'invalid_input',
         exitCode: EXIT_CODES.invalidInput,
       });

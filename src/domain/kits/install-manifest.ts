@@ -1,5 +1,5 @@
 export const INSTALL_MANIFEST_VERSION = 1 as const;
-export const INSTALL_MANIFEST_RELATIVE_PATH = '.agentkit/install-manifest.json';
+export const INSTALL_MANIFEST_RELATIVE_PATH = '.kk/install-manifest.json';
 
 export interface InstallManifestEntry {
   rel_path: string;

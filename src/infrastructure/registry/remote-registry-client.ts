@@ -1,6 +1,6 @@
 import net from 'node:net';
 import semver from 'semver';
-import { AkError, EXIT_CODES } from '../../domain/contracts/ak-error.js';
+import { KkError, EXIT_CODES } from '../../domain/contracts/kk-error.js';
 import type { RegistryPublicKeys } from '../../domain/registry/manifest-signature.js';
 import { verifyManifestSignature } from '../../domain/registry/manifest-signature.js';
 import {
@@ -54,17 +54,17 @@ export class RemoteRegistryClient {
     const requested = validateRequest(input);
     const accessToken = (await this.options.accessTokens.requireAccessToken()).trim();
     if (!accessToken) {
-      throw new AkError('You are not logged in.', {
+      throw new KkError('You are not logged in.', {
         code: 'auth_required',
         exitCode: EXIT_CODES.dependency,
-        remediation: 'Run ak login.',
+        remediation: 'Run kk login.',
       });
     }
     if (looksLikeRawLicenseKey(accessToken)) {
-      throw new AkError('A license key cannot be used as a registry session token.', {
+      throw new KkError('A license key cannot be used as a registry session token.', {
         code: 'permission_denied',
         exitCode: EXIT_CODES.security,
-        remediation: 'Run ak login to create a device session.',
+        remediation: 'Run kk login to create a device session.',
       });
     }
 
@@ -88,7 +88,7 @@ export class RemoteRegistryClient {
     try {
       payload = JSON.parse(bytes.toString('utf8'));
     } catch (error) {
-      throw new AkError('AgentKit returned malformed registry JSON.', {
+      throw new KkError('AgentKit returned malformed registry JSON.', {
         code: 'security_error',
         exitCode: EXIT_CODES.security,
         remediation: 'Retry later or contact AgentKit support.',
@@ -113,7 +113,7 @@ export class RemoteRegistryClient {
         signal: AbortSignal.timeout(30_000),
       });
     } catch (error) {
-      throw new AkError('Could not reach the AgentKit registry.', {
+      throw new KkError('Could not reach the AgentKit registry.', {
         code: 'network_error',
         exitCode: EXIT_CODES.dependency,
         remediation: 'Check your internet connection and try again.',
@@ -148,7 +148,7 @@ function assertRequestedIdentity(
     manifest.channel !== requested.channel ||
     (requested.version !== '' && manifest.version !== requested.version);
   if (mismatch) {
-    throw new AkError('Registry manifest does not match the requested kit.', {
+    throw new KkError('Registry manifest does not match the requested kit.', {
       code: 'security_error',
       exitCode: EXIT_CODES.security,
       remediation: 'Do not install this artifact. Retry later or contact AgentKit support.',
@@ -156,7 +156,7 @@ function assertRequestedIdentity(
   }
 }
 
-async function decodeRegistryError(response: Response): Promise<AkError> {
+async function decodeRegistryError(response: Response): Promise<KkError> {
   const body = await readBoundedResponse(response, MAX_ERROR_BYTES, 'Registry error response');
   let payload: { code?: unknown; message?: unknown; error?: unknown } = {};
   try {
@@ -168,10 +168,10 @@ async function decodeRegistryError(response: Response): Promise<AkError> {
     (typeof payload.message === 'string' && payload.message.trim()) ||
     (typeof payload.error === 'string' && payload.error.trim()) ||
     `AgentKit registry returned HTTP ${response.status}.`;
-  return new AkError(serverMessage, {
+  return new KkError(serverMessage, {
     code: response.status === 401 ? 'auth_expired' : 'dependency_unavailable',
     exitCode: EXIT_CODES.dependency,
-    remediation: response.status === 401 ? 'Run ak login again.' : 'Try again later.',
+    remediation: response.status === 401 ? 'Run kk login again.' : 'Try again later.',
     details: {
       status: response.status,
       ...(typeof payload.code === 'string' ? { registryCode: payload.code } : {}),
@@ -183,8 +183,8 @@ function looksLikeRawLicenseKey(token: string): boolean {
   return /^(?:ak_license_|license_|lic_)/i.test(token.trim());
 }
 
-function inputError(message: string): AkError {
-  return new AkError(message, {
+function inputError(message: string): KkError {
+  return new KkError(message, {
     code: 'invalid_input',
     exitCode: EXIT_CODES.invalidInput,
     remediation: 'Check the kit, runtime, channel, and version arguments.',
@@ -196,7 +196,7 @@ function validateRegistryBaseUrl(value: string): URL {
   try {
     url = new URL(value);
   } catch (error) {
-    throw new AkError('AgentKit registry URL is invalid.', {
+    throw new KkError('AgentKit registry URL is invalid.', {
       code: 'invalid_input',
       exitCode: EXIT_CODES.invalidInput,
       remediation: 'Configure a valid HTTPS AgentKit registry URL.',

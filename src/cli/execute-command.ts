@@ -1,4 +1,4 @@
-import { normalizeError } from '../domain/contracts/ak-error.js';
+import { normalizeError } from '../domain/contracts/kk-error.js';
 import type { CommandResult, GlobalOptions } from '../domain/contracts/command-result.js';
 import { renderError, renderResult } from '../presentation/render-result.js';
 

@@ -1,7 +1,7 @@
 import { randomUUID, createHash } from 'node:crypto';
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { AkError, EXIT_CODES } from '../../domain/contracts/ak-error.js';
+import { KkError, EXIT_CODES } from '../../domain/contracts/kk-error.js';
 
 export type ReportDestination = 'file' | 'github' | 'email';
 
@@ -68,15 +68,15 @@ export class DiagnosticReportStore {
       }
       const body = await readFile(metadata.bodyPath, 'utf8');
       if (sha256(body) !== metadata.sha256) {
-        throw new AkError('The diagnostic preview changed after it was approved.', {
+        throw new KkError('The diagnostic preview changed after it was approved.', {
           code: 'security_error',
           exitCode: EXIT_CODES.security,
-          remediation: 'Run ak doctor --report again and review the new preview.',
+          remediation: 'Run kk doctor --report again and review the new preview.',
         });
       }
       return { ...metadata, body };
     } catch (error) {
-      if (error instanceof AkError) throw error;
+      if (error instanceof KkError) throw error;
       throw invalidReport();
     }
   }
@@ -127,10 +127,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-function invalidReport(): AkError {
-  return new AkError('That diagnostic report was not found or is no longer valid.', {
+function invalidReport(): KkError {
+  return new KkError('That diagnostic report was not found or is no longer valid.', {
     code: 'not_found',
     exitCode: EXIT_CODES.notFound,
-    remediation: 'Run ak doctor --report again.',
+    remediation: 'Run kk doctor --report again.',
   });
 }

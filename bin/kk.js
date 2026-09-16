@@ -5,7 +5,7 @@ const supported = major === 22 ? minor >= 14 : major >= 24;
 
 if (!supported) {
   console.error(
-    `AgentKit requires Node.js 22.14 or newer. You are using ${process.versions.node}.\n` +
+    `KK CLI requires Node.js 22.14 or newer. You are using ${process.versions.node}.\n` +
       'Install an active Node.js LTS release, then run this command again.',
   );
   process.exitCode = 4;

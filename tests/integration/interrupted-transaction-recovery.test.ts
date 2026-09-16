@@ -429,7 +429,7 @@ describe('interrupted transaction recovery', () => {
 });
 
 async function createFixture() {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), 'ak-crash-recovery-'));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), 'kk-crash-recovery-'));
   roots.push(base);
   const root = path.join(base, 'root');
   const snapshots = path.join(base, 'snapshots');
@@ -578,7 +578,7 @@ function expectProcessKilled(result: {
 
 async function expectNoTransactionArtifacts(root: string): Promise<void> {
   const entries = await fs.readdir(root, { recursive: true });
-  expect(entries.filter((entry) => path.basename(entry).includes('.ak-'))).toEqual(
+  expect(entries.filter((entry) => path.basename(entry).includes('.kk-'))).toEqual(
     [],
   );
 }

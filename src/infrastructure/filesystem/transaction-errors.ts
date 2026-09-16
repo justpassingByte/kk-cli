@@ -1,13 +1,13 @@
-import { AkError, EXIT_CODES } from '../../domain/contracts/ak-error.js';
+import { KkError, EXIT_CODES } from '../../domain/contracts/kk-error.js';
 
-export function transactionConflict(message: string, cause?: unknown): AkError {
-  const options: ConstructorParameters<typeof AkError>[1] = {
+export function transactionConflict(message: string, cause?: unknown): KkError {
+  const options: ConstructorParameters<typeof KkError>[1] = {
     code: 'conflict',
     exitCode: EXIT_CODES.conflict,
     remediation: 'Inspect the target and retry without replacing foreign or modified files.',
   };
   if (cause !== undefined) options.cause = cause;
-  return new AkError(message, options);
+  return new KkError(message, options);
 }
 
 export function transactionFailure(
@@ -15,9 +15,9 @@ export function transactionFailure(
   transactionId: string,
   snapshotPath: string,
   recoveryReceiptPath?: string,
-): AkError {
+): KkError {
   const details: Record<string, unknown> = {
-    ...(error instanceof AkError ? error.details : undefined),
+    ...(error instanceof KkError ? error.details : undefined),
     transactionId,
     snapshotPath,
   };
@@ -29,12 +29,12 @@ export function transactionFailure(
         : 'The transaction was rolled back. Inspect the error and retry.'
       : `Rollback was incomplete. Recover from ${recoveryReceiptPath} before retrying.`;
   const remediation =
-    error instanceof AkError && error.remediation !== undefined
+    error instanceof KkError && error.remediation !== undefined
       ? `${error.remediation} ${rollbackRemediation}`
       : rollbackRemediation;
-  return new AkError(error instanceof Error ? error.message : 'Filesystem transaction failed.', {
-    code: error instanceof AkError ? error.code : 'runtime_error',
-    exitCode: error instanceof AkError ? error.exitCode : EXIT_CODES.runtime,
+  return new KkError(error instanceof Error ? error.message : 'Filesystem transaction failed.', {
+    code: error instanceof KkError ? error.code : 'runtime_error',
+    exitCode: error instanceof KkError ? error.exitCode : EXIT_CODES.runtime,
     remediation,
     details,
     cause: error,

@@ -3,10 +3,10 @@ import { normalizeArgv } from '../../src/cli/argv-normalization.js';
 import { normalizeGlobalOptions } from '../../src/cli/global-options.js';
 
 describe('CLI argv contract', () => {
-  it('maps ak kit init to the same init route without changing flags', () => {
-    expect(normalizeArgv(['node', 'ak', 'kit', 'init', '--runtime', 'codex'])).toEqual([
+  it('maps kk kit init to the same init route without changing flags', () => {
+    expect(normalizeArgv(['node', 'kk', 'kit', 'init', '--runtime', 'codex'])).toEqual([
       'node',
-      'ak',
+      'kk',
       'init',
       '--runtime',
       'codex',
@@ -17,7 +17,7 @@ describe('CLI argv contract', () => {
     expect(
       normalizeArgv([
         'node',
-        'ak',
+        'kk',
         '--json',
         '-q',
         'kit',
@@ -27,7 +27,7 @@ describe('CLI argv contract', () => {
       ]),
     ).toEqual([
       'node',
-      'ak',
+      'kk',
       '--json',
       '-q',
       'init',
@@ -37,7 +37,7 @@ describe('CLI argv contract', () => {
   });
 
   it('does not reinterpret kit init after an unknown option', () => {
-    const input = ['node', 'ak', '--project-dir', 'kit', 'init'];
+    const input = ['node', 'kk', '--project-dir', 'kit', 'init'];
     expect(normalizeArgv(input)).toBe(input);
   });
 

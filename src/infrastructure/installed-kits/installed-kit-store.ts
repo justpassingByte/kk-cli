@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { AkError, EXIT_CODES } from '../../domain/contracts/ak-error.js';
+import { KkError, EXIT_CODES } from '../../domain/contracts/kk-error.js';
 import {
   INSTALL_MANIFEST_VERSION,
   type InstallManifestEntry,
@@ -23,11 +23,11 @@ import {
   resolveWithinRoot,
 } from '../filesystem/path-guard.js';
 
-function invalidState(message: string, cause?: unknown): AkError {
-  return new AkError(message, {
+function invalidState(message: string, cause?: unknown): KkError {
+  return new KkError(message, {
     code: 'security_error',
     exitCode: EXIT_CODES.security,
-    remediation: 'Run ak doctor and inspect the installed-kit ownership metadata before retrying.',
+    remediation: 'Run kk doctor and inspect the installed-kit ownership metadata before retrying.',
     cause,
   });
 }
@@ -41,7 +41,7 @@ export class InstalledKitStore {
     try {
       return parseInstalledKitRegistry(JSON.parse(data) as unknown);
     } catch (error) {
-      if (error instanceof AkError) throw error;
+      if (error instanceof KkError) throw error;
       throw invalidState(`Installed-kit registry is invalid: ${this.registryPath}`, error);
     }
   }
@@ -93,7 +93,7 @@ export async function readInstallManifest(manifestPath: string): Promise<Install
   try {
     return parseInstallManifest(JSON.parse(data) as unknown);
   } catch (error) {
-    if (error instanceof AkError) throw error;
+    if (error instanceof KkError) throw error;
     throw invalidState(`Install manifest is invalid: ${manifestPath}`, error);
   }
 }

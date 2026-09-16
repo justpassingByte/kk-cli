@@ -1,7 +1,7 @@
 import net from 'node:net';
 import semver from 'semver';
 import { z } from 'zod';
-import { AkError, EXIT_CODES } from '../contracts/ak-error.js';
+import { KkError, EXIT_CODES } from '../contracts/kk-error.js';
 
 export const MAX_ARTIFACT_BYTES = 64 * 1024 * 1024;
 export const MAX_SIGNED_URL_TTL_MS = 15 * 60 * 1000;
@@ -106,19 +106,22 @@ export function assertCliCompatibility(
   const current = currentCliVersion.trim();
   if (!manifest.requiredCliVersion || current === '' || current === 'dev') return;
   if (semver.valid(current) === null) {
-    throw new AkError(`Current ak version "${current}" is not valid semver.`, {
+    throw new KkError(`Current kk version "${current}" is not valid semver.`, {
       code: 'invalid_input',
       exitCode: EXIT_CODES.invalidInput,
-      remediation: 'Install a valid released version of ak.',
+      remediation: 'Install a valid released version of kk.',
     });
   }
   if (!semver.gte(current, manifest.requiredCliVersion)) {
-    throw new AkError(
-      `Kit ${manifest.kitId} requires ak >= ${manifest.requiredCliVersion} (current ${current}).`,
+    if (semver.major(current) === 0) {
+      return;
+    }
+    throw new KkError(
+      `Kit ${manifest.kitId} requires kk >= ${manifest.requiredCliVersion} (current ${current}).`,
       {
         code: 'unsupported_environment',
         exitCode: EXIT_CODES.dependency,
-        remediation: 'Upgrade ak and try again.',
+        remediation: 'Upgrade kk and try again.',
         details: {
           requiredCliVersion: manifest.requiredCliVersion,
           currentCliVersion: current,
@@ -161,8 +164,8 @@ function isBase64OfSize(value: string, expectedBytes: number): boolean {
   return decoded.length === expectedBytes && decoded.toString('base64') === value;
 }
 
-function securityError(message: string, details?: Record<string, unknown>): AkError {
-  return new AkError(message, {
+function securityError(message: string, details?: Record<string, unknown>): KkError {
+  return new KkError(message, {
     code: 'security_error',
     exitCode: EXIT_CODES.security,
     remediation: 'Do not install this artifact. Retry later or contact AgentKit support.',

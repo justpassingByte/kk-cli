@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { AkError, EXIT_CODES } from '../../domain/contracts/ak-error.js';
+import { KkError, EXIT_CODES } from '../../domain/contracts/kk-error.js';
 import {
   PROJECT_RUNTIME_OWNERSHIP_RELATIVE_PATH,
   PROJECT_RUNTIME_OWNERSHIP_VERSION,
@@ -148,11 +148,11 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-function conflict(message: string, cause?: unknown): AkError {
-  return new AkError(message, {
+function conflict(message: string, cause?: unknown): KkError {
+  return new KkError(message, {
     code: 'conflict',
     exitCode: EXIT_CODES.conflict,
-    remediation: 'Run ak doctor and inspect project runtime ownership before retrying.',
+    remediation: 'Run kk doctor and inspect project runtime ownership before retrying.',
     ...(cause ? { cause } : {}),
   });
 }

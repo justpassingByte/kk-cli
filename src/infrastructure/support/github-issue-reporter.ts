@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process';
-import { AkError, EXIT_CODES } from '../../domain/contracts/ak-error.js';
+import { KkError, EXIT_CODES } from '../../domain/contracts/kk-error.js';
 
 const SUPPORT_REPOSITORY = 'bestagentkits/agentkit-support';
 const MAX_GH_OUTPUT_BYTES = 64 * 1024;
@@ -25,7 +25,7 @@ export async function createSupportIssue(
         '--repo',
         SUPPORT_REPOSITORY,
         '--title',
-        `ak doctor report: ${process.platform} ${state}`,
+        `kk doctor report: ${process.platform} ${state}`,
         '--body-file',
         '-',
       ],
@@ -33,7 +33,7 @@ export async function createSupportIssue(
     );
     return stdout.trim();
   } catch (error) {
-    throw new AkError('GitHub could not create the support issue.', {
+    throw new KkError('GitHub could not create the support issue.', {
       code: 'dependency_unavailable',
       exitCode: EXIT_CODES.dependency,
       remediation: reviewedReportPath

@@ -1,7 +1,7 @@
 import os from 'node:os';
 import path from 'node:path';
 
-export interface AgentKitPaths {
+export interface KkPaths {
   home: string;
   credentials: string;
   installedKits: string;
@@ -11,8 +11,8 @@ export interface AgentKitPaths {
   supportReports: string;
 }
 
-export function resolveAgentKitPaths(environment: NodeJS.ProcessEnv = process.env): AgentKitPaths {
-  const home = path.resolve(environment.AGENTKIT_HOME || path.join(os.homedir(), '.agentkit'));
+export function resolveKkPaths(environment: NodeJS.ProcessEnv = process.env): KkPaths {
+  const home = path.resolve(environment.KK_HOME || path.join(os.homedir(), '.kk'));
   return {
     home,
     credentials: path.join(home, 'credentials.json'),

@@ -19,7 +19,7 @@ if (!artifact?.filename || !Array.isArray(artifact.files)) {
 const allowedFiles = new Set([
   'LICENSE',
   'README.md',
-  'bin/ak.js',
+  'bin/kk.js',
   'dist/index.js',
   'dist/index.js.map',
   'package.json',
@@ -30,16 +30,16 @@ const unexpected = artifact.files
 if (unexpected.length > 0) {
   throw new Error(`Unexpected files in npm package: ${unexpected.join(', ')}`);
 }
-for (const required of ['bin/ak.js', 'dist/index.js', 'package.json']) {
+for (const required of ['bin/kk.js', 'dist/index.js', 'package.json']) {
   if (!artifact.files.some((entry) => entry.path === required)) {
     throw new Error(`Required npm package file is missing: ${required}`);
   }
 }
-if (packageMetadata.name !== '@bestagentkits/ak' || packageMetadata.bin?.ak !== 'bin/ak.js') {
-  throw new Error('npm package identity or ak binary contract is incorrect.');
+if (packageMetadata.name !== 'kk-cli' || packageMetadata.bin?.kk !== 'bin/kk.js') {
+  throw new Error('npm package identity or kk binary contract is incorrect.');
 }
 
-const prefix = mkdtempSync(path.join(os.tmpdir(), 'ak-package-canary-'));
+const prefix = mkdtempSync(path.join(os.tmpdir(), 'kk-package-canary-'));
 const tarball = path.resolve(artifact.filename);
 try {
   execFileSync(
@@ -49,14 +49,14 @@ try {
   );
   const packageRoot =
     process.platform === 'win32'
-      ? path.join(prefix, 'node_modules', '@bestagentkits', 'ak')
-      : path.join(prefix, 'lib', 'node_modules', '@bestagentkits', 'ak');
-  const entrypoint = path.join(packageRoot, 'bin', 'ak.js');
+      ? path.join(prefix, 'node_modules', 'kk-cli')
+      : path.join(prefix, 'lib', 'node_modules', 'kk-cli');
+  const entrypoint = path.join(packageRoot, 'bin', 'kk.js');
   const version = execFileSync(process.execPath, [entrypoint, '--version'], {
     encoding: 'utf8',
     windowsHide: true,
   }).trim();
-  if (version !== packageMetadata.version && !version.startsWith(`ak/${packageMetadata.version} `)) {
+  if (version !== packageMetadata.version && !version.startsWith(`kk/${packageMetadata.version} `)) {
     throw new Error(`Installed package version ${version} does not match ${packageMetadata.version}.`);
   }
   execFileSync(process.execPath, [entrypoint, '--help'], {

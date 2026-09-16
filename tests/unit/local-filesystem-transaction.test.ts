@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import lockfile from 'proper-lockfile';
 import { afterEach, describe, expect, it } from 'vitest';
-import { AkError, EXIT_CODES } from '../../src/domain/contracts/ak-error.js';
+import { KkError, EXIT_CODES } from '../../src/domain/contracts/kk-error.js';
 import type { FilesystemTransactionPlan } from '../../src/domain/lifecycle/filesystem-transaction.js';
 import { sha256Bytes } from '../../src/infrastructure/filesystem/file-hash.js';
 import { LocalFilesystemTransaction } from '../../src/infrastructure/filesystem/local-filesystem-transaction.js';
@@ -16,7 +16,7 @@ afterEach(async () => {
 });
 
 async function fixture(): Promise<{ base: string; root: string; snapshots: string; recovery: string }> {
-  const base = await fs.mkdtemp(path.join(os.tmpdir(), 'ak-transaction-test-'));
+  const base = await fs.mkdtemp(path.join(os.tmpdir(), 'kk-transaction-test-'));
   temporaryDirectories.push(base);
   const root = path.join(base, 'root');
   const snapshots = path.join(base, 'snapshots');
@@ -282,13 +282,13 @@ describe('LocalFilesystemTransaction', () => {
     const paths = await fixture();
     await fs.writeFile(path.join(paths.root, 'payload.txt'), 'old');
     let caught: unknown;
-    const applyFailure = new AkError('plugin registration failed', {
+    const applyFailure = new KkError('plugin registration failed', {
       code: 'unsupported_environment',
       exitCode: EXIT_CODES.dependency,
       remediation: 'Install or update the Claude Code CLI.',
       details: { provider: 'claude-code' },
     });
-    const compensationFailure = new AkError('plugin unregister failed', {
+    const compensationFailure = new KkError('plugin unregister failed', {
       code: 'permission_denied',
       exitCode: EXIT_CODES.security,
       remediation: 'Remove the plugin registration manually.',

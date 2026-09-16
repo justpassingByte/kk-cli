@@ -54,7 +54,7 @@ describe('projected Claude Code init lifecycle', { timeout: 30_000 }, () => {
       ),
     ).resolves.toContain('1.2.3');
     await expect(
-      fs.stat(path.join(fixture.project, '.agentkit', 'runtime-ownership.json')),
+      fs.stat(path.join(fixture.project, '.kk', 'runtime-ownership.json')),
     ).resolves.toBeDefined();
     const registry = await fixture.store.load();
     expect(Object.keys(registry.kits)).toHaveLength(1);
@@ -83,7 +83,7 @@ describe('projected Claude Code init lifecycle', { timeout: 30_000 }, () => {
       fs.stat(path.join(fixture.project, '.claude-plugin', 'marketplace.json')),
     ).rejects.toMatchObject({ code: 'ENOENT' });
     await expect(
-      fs.stat(path.join(fixture.project, '.agentkit', 'runtime-ownership.json')),
+      fs.stat(path.join(fixture.project, '.kk', 'runtime-ownership.json')),
     ).rejects.toMatchObject({ code: 'ENOENT' });
     expect(await fixture.store.load()).toEqual({ version: 1, kits: {} });
     expect(fixture.client.marketplaceKnown).toBe(false);

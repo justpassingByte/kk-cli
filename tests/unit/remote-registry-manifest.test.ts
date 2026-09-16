@@ -71,7 +71,7 @@ describe('remote registry manifest', () => {
       createManifest({ requiredCliVersion: '2.0.0' }),
       NOW,
     );
-    expect(() => assertCliCompatibility(manifest, '1.9.9')).toThrow(/requires ak/i);
+    expect(() => assertCliCompatibility(manifest, '1.9.9')).toThrow(/requires kk/i);
     expect(() => assertCliCompatibility(manifest, 'not-semver')).toThrow(/not valid semver/i);
     expect(() => assertCliCompatibility(manifest, 'dev')).not.toThrow();
     expect(() => assertCliCompatibility(manifest, '2.0.0')).not.toThrow();

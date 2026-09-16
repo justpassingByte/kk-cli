@@ -19,9 +19,9 @@ afterEach(async () => {
 
 describe('consumeRuntimeHandoff', () => {
   it('accepts only the expected fresh entrypoint and version', async () => {
-    const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'ak-handoff-'));
+    const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'kk-handoff-'));
     directories.push(directory);
-    const entrypoint = path.join(directory, 'ak.js');
+    const entrypoint = path.join(directory, 'kk.js');
     await fs.writeFile(entrypoint, '#!/usr/bin/env node\n');
     process.env['AGENTKIT_RUNTIME_HANDOFF'] = JSON.stringify({
       expectedVersion: '0.1.0-beta.1',
@@ -40,9 +40,9 @@ describe('consumeRuntimeHandoff', () => {
   });
 
   it('rejects a stale or mismatched handoff', async () => {
-    const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'ak-handoff-'));
+    const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'kk-handoff-'));
     directories.push(directory);
-    const entrypoint = path.join(directory, 'ak.js');
+    const entrypoint = path.join(directory, 'kk.js');
     await fs.writeFile(entrypoint, '#!/usr/bin/env node\n');
     process.env['AGENTKIT_RUNTIME_HANDOFF'] = JSON.stringify({
       expectedVersion: '0.1.0-beta.1',

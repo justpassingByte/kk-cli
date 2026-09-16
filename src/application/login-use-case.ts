@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { AkError, EXIT_CODES } from '../domain/contracts/ak-error.js';
+import { KkError, EXIT_CODES } from '../domain/contracts/kk-error.js';
 import type { CommandResult } from '../domain/contracts/command-result.js';
 import type { AgentKitApiClient } from '../infrastructure/auth/agentkit-api-client.js';
 import { mergeLoginResponse } from '../infrastructure/auth/session-manager.js';
@@ -22,7 +22,7 @@ export class LoginUseCase {
 
   async execute(input: LoginInput): Promise<CommandResult> {
     if (input.email && (input.apiKey || input.useApiKey)) {
-      throw new AkError('Choose either email or API key login, not both.', {
+      throw new KkError('Choose either email or API key login, not both.', {
         code: 'invalid_input',
         exitCode: EXIT_CODES.invalidInput,
       });
@@ -69,11 +69,11 @@ export class LoginUseCase {
 
   private async requireInteractive<T>(input: LoginInput, prompt: () => Promise<T>): Promise<T> {
     if (input.noInteractive || !process.stdin.isTTY) {
-      throw new AkError('This login needs input, but the terminal is non-interactive.', {
+      throw new KkError('This login needs input, but the terminal is non-interactive.', {
         code: 'invalid_input',
         exitCode: EXIT_CODES.invalidInput,
         remediation:
-          'Use --email in an interactive terminal, or set AGENTKIT_API_KEY and run ak login --api-key --no-interactive.',
+          'Use --email in an interactive terminal, or set AGENTKIT_API_KEY and run kk login --api-key --no-interactive.',
       });
     }
     return prompt();

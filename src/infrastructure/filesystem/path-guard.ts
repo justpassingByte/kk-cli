@@ -1,17 +1,17 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { AkError, EXIT_CODES } from '../../domain/contracts/ak-error.js';
+import { KkError, EXIT_CODES } from '../../domain/contracts/kk-error.js';
 
 const WINDOWS_RESERVED = /^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\..*)?$/iu;
 
-function securityError(message: string, details?: Record<string, unknown>): AkError {
-  const options: ConstructorParameters<typeof AkError>[1] = {
+function securityError(message: string, details?: Record<string, unknown>): KkError {
+  const options: ConstructorParameters<typeof KkError>[1] = {
     code: 'security_error',
     exitCode: EXIT_CODES.security,
     remediation: 'Use a regular path contained by the selected install root.',
   };
   if (details !== undefined) options.details = details;
-  return new AkError(message, options);
+  return new KkError(message, options);
 }
 
 export function assertPortableRelativePath(relativePath: string): void {

@@ -37,11 +37,11 @@ export async function atomicWriteFile(
     ? await resolveSibling(root, target, paths.temporaryRelativePath)
     : path.join(
         path.dirname(target),
-        `.${path.basename(target)}.ak-${randomUUID()}.tmp`,
+        `.${path.basename(target)}.kk-${randomUUID()}.tmp`,
       );
   const displaced = paths
     ? await resolveSibling(root, target, paths.displacedRelativePath)
-    : `${target}.ak-swap-${randomUUID()}`;
+    : `${target}.kk-swap-${randomUUID()}`;
   const desired = Buffer.isBuffer(contents)
     ? contents
     : typeof contents === 'string'

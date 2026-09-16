@@ -7,7 +7,7 @@ import { DiagnosticReportStore } from '../../src/infrastructure/support/diagnost
 
 describe('DiagnosticReportStore', () => {
   it('loads only the exact reviewed bytes and rejects later changes', async () => {
-    const root = await mkdtemp(path.join(os.tmpdir(), 'ak-report-store-'));
+    const root = await mkdtemp(path.join(os.tmpdir(), 'kk-report-store-'));
     const store = new DiagnosticReportStore(root);
     try {
       const saved = await store.save('github', 'reviewed report\n');
@@ -22,7 +22,7 @@ describe('DiagnosticReportStore', () => {
   });
 
   it('binds the approved delivery destination to the reviewed report', async () => {
-    const root = await mkdtemp(path.join(os.tmpdir(), 'ak-report-destination-'));
+    const root = await mkdtemp(path.join(os.tmpdir(), 'kk-report-destination-'));
     const store = new DiagnosticReportStore(root);
     try {
       const saved = await store.save('email', 'reviewed report\n');
@@ -42,7 +42,7 @@ describe('DiagnosticReportStore', () => {
   });
 
   it('previews a scrubbed report without submitting it', async () => {
-    const root = await mkdtemp(path.join(os.tmpdir(), 'ak-report-preview-'));
+    const root = await mkdtemp(path.join(os.tmpdir(), 'kk-report-preview-'));
     const store = new DiagnosticReportStore(root);
     const useCase = new DiagnosticReportUseCase(
       {
@@ -73,7 +73,7 @@ describe('DiagnosticReportStore', () => {
   });
 
   it('submits the exact body already verified by the report store', async () => {
-    const root = await mkdtemp(path.join(os.tmpdir(), 'ak-report-submit-'));
+    const root = await mkdtemp(path.join(os.tmpdir(), 'kk-report-submit-'));
     const store = new DiagnosticReportStore(root);
     const saved = await store.save(
       'github',

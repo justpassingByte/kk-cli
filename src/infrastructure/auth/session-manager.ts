@@ -1,4 +1,4 @@
-import { AkError, EXIT_CODES } from '../../domain/contracts/ak-error.js';
+import { KkError, EXIT_CODES } from '../../domain/contracts/kk-error.js';
 import type { CredentialStore, StoredCredential } from '../credentials/credential-types.js';
 import type { AgentKitApiClient } from './agentkit-api-client.js';
 import type { LoginResponse, RefreshResponse } from './auth-types.js';
@@ -15,10 +15,10 @@ export class SessionManager {
   async requireAccessToken(): Promise<string> {
     const credential = await this.store.load();
     if (!credential) {
-      throw new AkError('You are not logged in.', {
+      throw new KkError('You are not logged in.', {
         code: 'auth_required',
         exitCode: EXIT_CODES.dependency,
-        remediation: 'Run ak login.',
+        remediation: 'Run kk login.',
       });
     }
     if (!shouldRefresh(credential, this.now())) return credential.accessToken;
@@ -38,10 +38,10 @@ export class SessionManager {
   private async refreshUnderLock(force: boolean, staleAccessToken?: string): Promise<string> {
     const credential = await this.store.load();
     if (!credential) {
-      throw new AkError('You are not logged in.', {
+      throw new KkError('You are not logged in.', {
         code: 'auth_required',
         exitCode: EXIT_CODES.dependency,
-        remediation: 'Run ak login.',
+        remediation: 'Run kk login.',
       });
     }
     if (
@@ -54,13 +54,13 @@ export class SessionManager {
       try {
         const response = await this.api.refresh(credential.refreshToken);
         if (!response.refreshToken || !response.refreshTokenExpiresAt) {
-          throw new AkError(
+          throw new KkError(
             'AgentKit did not return the rotated refresh session.',
             {
               code: 'dependency_unavailable',
               exitCode: EXIT_CODES.dependency,
               remediation:
-                'Your existing session was preserved. Retry, then run ak login if the server keeps returning an incomplete session.',
+                'Your existing session was preserved. Retry, then run kk login if the server keeps returning an incomplete session.',
             },
           );
         }
@@ -79,10 +79,10 @@ export class SessionManager {
       return refreshed.accessToken;
     }
 
-    throw new AkError('Your login has expired.', {
+    throw new KkError('Your login has expired.', {
       code: 'auth_expired',
       exitCode: EXIT_CODES.dependency,
-      remediation: 'Run ak login again.',
+      remediation: 'Run kk login again.',
     });
   }
 }
@@ -108,10 +108,10 @@ export function mergeLoginResponse(
       ? response.refreshTokenExpiresAt
       : undefined;
   if (!authMethod || !user) {
-    throw new AkError('AgentKit returned an incomplete login identity.', {
+    throw new KkError('AgentKit returned an incomplete login identity.', {
       code: 'dependency_unavailable',
       exitCode: EXIT_CODES.dependency,
-      remediation: 'Retry the command. If this persists, run ak login again.',
+      remediation: 'Retry the command. If this persists, run kk login again.',
     });
   }
   return {

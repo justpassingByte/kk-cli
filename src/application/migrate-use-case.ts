@@ -1,7 +1,7 @@
-import { AkError, EXIT_CODES } from '../domain/contracts/ak-error.js';
+import { KkError, EXIT_CODES } from '../domain/contracts/kk-error.js';
 import type { CommandResult } from '../domain/contracts/command-result.js';
 import type { LegacyCkDiscovery, LegacyCkFinding } from '../domain/migration/legacy-ck-types.js';
-import type { AkExecutableCandidate } from '../infrastructure/packages/executable-discovery.js';
+import type { KkExecutableCandidate } from '../infrastructure/packages/executable-discovery.js';
 import type { PromptService } from '../presentation/prompt-service.js';
 import type { InitUseCase } from './init-use-case.js';
 
@@ -16,7 +16,7 @@ export class MigrateUseCase {
     private readonly discoverLegacy: (options: {
       project: string;
     }) => Promise<LegacyCkDiscovery>,
-    private readonly discoverExecutables: () => Promise<AkExecutableCandidate[]>,
+    private readonly discoverExecutables: () => Promise<KkExecutableCandidate[]>,
     private readonly init: InitUseCase,
     private readonly prompts: PromptService,
     private readonly recoverLifecycle: () => Promise<unknown> = async () => undefined,
@@ -94,10 +94,10 @@ export class MigrateUseCase {
         true,
       );
     }
-    throw new AkError('Migration needs confirmation.', {
+    throw new KkError('Migration needs confirmation.', {
       code: 'cancelled',
       exitCode: EXIT_CODES.cancelled,
-      remediation: 'Review the detected paths, then run ak migrate --yes.',
+      remediation: 'Review the detected paths, then run kk migrate --yes.',
     });
   }
 }
@@ -123,7 +123,7 @@ function isProjectClaudeReplacement(
   );
 }
 
-function runtimeGuidance(executables: AkExecutableCandidate[]): string[] {
+function runtimeGuidance(executables: KkExecutableCandidate[]): string[] {
   const npm = executables.filter((candidate) => candidate.kind === 'npm');
   const native = executables.filter(
     (candidate) => candidate.kind === 'legacy_native_candidate',
@@ -131,11 +131,11 @@ function runtimeGuidance(executables: AkExecutableCandidate[]): string[] {
   if (native.length === 0) return [];
   if (npm.length === 0) {
     return [
-      'Install the npm runtime with: npm install --global @bestagentkits/ak@beta',
-      'Afterward, verify PATH order with: ak doctor',
+      'Install the npm runtime with: npm install --global github:justpassingByte/kk-cli',
+      'Afterward, verify PATH order with: kk doctor',
     ];
   }
   return [
-    'Both Go and npm ak executables are on PATH. Keep both for now, then follow ak doctor PATH guidance.',
+    'Both legacy and npm executables are on PATH. Keep both for now, then follow kk doctor PATH guidance.',
   ];
 }

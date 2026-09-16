@@ -1,5 +1,5 @@
 import * as p from '@clack/prompts';
-import { AkError, EXIT_CODES } from '../domain/contracts/ak-error.js';
+import { KkError, EXIT_CODES } from '../domain/contracts/kk-error.js';
 
 export interface PromptService {
   chooseAuthMethod(): Promise<'email_otp' | 'api_key'>;
@@ -67,7 +67,7 @@ export class ClackPromptService implements PromptService {
 function requireAnswer<T>(answer: T | symbol): T {
   if (p.isCancel(answer)) {
     p.cancel('Nothing changed.');
-    throw new AkError('Cancelled.', {
+    throw new KkError('Cancelled.', {
       code: 'cancelled',
       exitCode: EXIT_CODES.cancelled,
     });

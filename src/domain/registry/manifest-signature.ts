@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import { AkError, EXIT_CODES } from '../contracts/ak-error.js';
+import { KkError, EXIT_CODES } from '../contracts/kk-error.js';
 import type { RemoteRegistryManifest } from './remote-registry-manifest.js';
 
 const ED25519_SPKI_PREFIX = Buffer.from('302a300506032b6570032100', 'hex');
@@ -84,8 +84,8 @@ function escapeForGoJson(json: string): string {
   return json.replace(GO_JSON_ESCAPE_PATTERN, (character) => GO_JSON_ESCAPES[character] ?? character);
 }
 
-function signatureError(message: string): AkError {
-  return new AkError(message, {
+function signatureError(message: string): KkError {
+  return new KkError(message, {
     code: 'security_error',
     exitCode: EXIT_CODES.security,
     remediation: 'Do not install this artifact. Retry later or contact AgentKit support.',

@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { AkError, EXIT_CODES } from '../domain/contracts/ak-error.js';
+import { KkError, EXIT_CODES } from '../domain/contracts/kk-error.js';
 import type { FilesystemTransactionPlan } from '../domain/lifecycle/filesystem-transaction.js';
 import {
   INSTALL_MANIFEST_RELATIVE_PATH,
@@ -11,7 +11,7 @@ import type {
   InstalledKitRecord,
   InstalledKitRegistryV1,
 } from '../domain/kits/installed-kit-registry.js';
-import type { AgentKitPaths } from '../infrastructure/paths/agentkit-paths.js';
+import type { KkPaths } from '../infrastructure/paths/kk-paths.js';
 import { sha256File } from '../infrastructure/filesystem/file-hash.js';
 import {
   createInstallManifest,
@@ -51,7 +51,7 @@ export interface PreparedKitInstall {
 export async function prepareKitInstall(
   target: KitInstallTarget,
   files: StagedKitFile[],
-  paths: AgentKitPaths,
+  paths: KkPaths,
   store: InstalledKitStore,
   projection?: PreparedRuntimeProjection,
 ): Promise<PreparedKitInstall> {
@@ -63,7 +63,7 @@ export async function prepareKitInstall(
     ? projection.projectRoot
     : target.scope === 'global'
       ? paths.home
-      : path.join(projectDirectory as string, '.agentkit');
+      : path.join(projectDirectory as string, '.kk');
   await fs.mkdir(paths.home, { recursive: true, mode: 0o750 });
   await fs.mkdir(lifecycleRoot, { recursive: true, mode: 0o750 });
 
@@ -311,11 +311,11 @@ async function hashIfPresent(filePath: string): Promise<string | undefined> {
   }
 }
 
-function conflict(message: string, cause?: unknown): AkError {
-  return new AkError(message, {
+function conflict(message: string, cause?: unknown): KkError {
+  return new KkError(message, {
     code: 'conflict',
     exitCode: EXIT_CODES.conflict,
-    remediation: 'Run ak doctor and review the existing installation before retrying.',
+    remediation: 'Run kk doctor and review the existing installation before retrying.',
     cause,
   });
 }

@@ -1,7 +1,7 @@
 import { spawn } from 'node:child_process';
 import { realpath } from 'node:fs/promises';
 import path from 'node:path';
-import { AkError, EXIT_CODES } from '../../domain/contracts/ak-error.js';
+import { KkError, EXIT_CODES } from '../../domain/contracts/kk-error.js';
 import type { RuntimeInstall } from './npm-runtime-manager.js';
 
 const HANDOFF_ENV = 'AGENTKIT_RUNTIME_HANDOFF';
@@ -80,11 +80,11 @@ function normalize(value: string): string {
   return process.platform === 'win32' ? value.toLowerCase() : value;
 }
 
-function handoffError(cause: unknown): AkError {
-  return new AkError('The updated AgentKit runtime could not take over safely.', {
+function handoffError(cause: unknown): KkError {
+  return new KkError('The updated AgentKit runtime could not take over safely.', {
     code: 'conflict',
     exitCode: EXIT_CODES.conflict,
-    remediation: 'Open a new terminal and run ak update again.',
+    remediation: 'Open a new terminal and run kk update again.',
     cause,
   });
 }

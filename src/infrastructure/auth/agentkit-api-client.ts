@@ -1,4 +1,4 @@
-import { AkError, EXIT_CODES } from '../../domain/contracts/ak-error.js';
+import { KkError, EXIT_CODES } from '../../domain/contracts/kk-error.js';
 import {
   apiKeyLoginResponseSchema,
   otpLoginResponseSchema,
@@ -57,7 +57,7 @@ export class AgentKitApiClient {
         signal: AbortSignal.timeout(20_000),
       });
     } catch (error) {
-      throw new AkError('Could not reach AgentKit.', {
+      throw new KkError('Could not reach AgentKit.', {
         code: 'network_error',
         exitCode: EXIT_CODES.dependency,
         remediation: 'Check your internet connection and try again.',
@@ -74,13 +74,13 @@ export class AgentKitApiClient {
         response.status === 401 ||
         reauthRequired ||
         serverCode?.startsWith('refresh_') === true;
-      throw new AkError(serverMessage || `AgentKit returned HTTP ${response.status}.`, {
+      throw new KkError(serverMessage || `AgentKit returned HTTP ${response.status}.`, {
         code: authFailure ? 'auth_expired' : 'dependency_unavailable',
         exitCode: EXIT_CODES.dependency,
         remediation:
           response.status === 429
             ? 'Wait for the displayed retry period before requesting another code.'
-            : 'Try again. If the problem continues, run ak doctor.',
+            : 'Try again. If the problem continues, run kk doctor.',
         details: {
           status: response.status,
           ...(serverCode ? { server_code: serverCode } : {}),
@@ -112,8 +112,8 @@ function validateBaseUrl(value: string): string {
   return url.toString();
 }
 
-function invalidApiUrl(cause?: unknown): AkError {
-  return new AkError('AgentKit API URL is not secure.', {
+function invalidApiUrl(cause?: unknown): KkError {
+  return new KkError('AgentKit API URL is not secure.', {
     code: 'security_error',
     exitCode: EXIT_CODES.security,
     remediation:

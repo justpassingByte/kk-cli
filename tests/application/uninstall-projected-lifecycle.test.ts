@@ -73,7 +73,7 @@ describe('projected Claude Code uninstall lifecycle', { timeout: 30_000 }, () =>
       expect(Object.keys(registry.projects ?? {})).toHaveLength(1);
       const ownership = JSON.parse(
         await fs.readFile(
-          path.join(fixture.project, '.agentkit', 'runtime-ownership.json'),
+          path.join(fixture.project, '.kk', 'runtime-ownership.json'),
           'utf8',
         ),
       ) as {
@@ -148,7 +148,7 @@ describe('projected Claude Code uninstall lifecycle', { timeout: 30_000 }, () =>
     expect(fixture.client.marketplaceKnown).toBe(true);
     const ownership = JSON.parse(
       await fs.readFile(
-        path.join(fixture.project, '.agentkit', 'runtime-ownership.json'),
+        path.join(fixture.project, '.kk', 'runtime-ownership.json'),
         'utf8',
       ),
     ) as {
@@ -167,7 +167,7 @@ describe('projected Claude Code uninstall lifecycle', { timeout: 30_000 }, () =>
     await createInit(fixture, '1.3.0').useCase.execute(input(fixture.project));
     const reconciled = JSON.parse(
       await fs.readFile(
-        path.join(fixture.project, '.agentkit', 'runtime-ownership.json'),
+        path.join(fixture.project, '.kk', 'runtime-ownership.json'),
         'utf8',
       ),
     ) as { residues: Record<string, unknown> };

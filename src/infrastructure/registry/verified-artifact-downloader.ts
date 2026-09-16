@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import { AkError, EXIT_CODES } from '../../domain/contracts/ak-error.js';
+import { KkError, EXIT_CODES } from '../../domain/contracts/kk-error.js';
 import {
   assertSignedUrlLifetime,
   MAX_ARTIFACT_BYTES,
@@ -28,7 +28,7 @@ export async function downloadVerifiedArtifact(
       signal: AbortSignal.timeout(60_000),
     });
   } catch (error) {
-    throw new AkError('Could not download the verified kit artifact.', {
+    throw new KkError('Could not download the verified kit artifact.', {
       code: 'network_error',
       exitCode: EXIT_CODES.dependency,
       remediation: 'Check your internet connection and try again.',
@@ -36,7 +36,7 @@ export async function downloadVerifiedArtifact(
     });
   }
   if (!response.ok) {
-    throw new AkError(`Kit artifact download returned HTTP ${response.status}.`, {
+    throw new KkError(`Kit artifact download returned HTTP ${response.status}.`, {
       code: 'dependency_unavailable',
       exitCode: EXIT_CODES.dependency,
       remediation: 'Resolve the kit again to obtain a fresh download URL.',
@@ -58,8 +58,8 @@ export async function downloadVerifiedArtifact(
   return bytes;
 }
 
-function artifactError(message: string): AkError {
-  return new AkError(message, {
+function artifactError(message: string): KkError {
+  return new KkError(message, {
     code: 'security_error',
     exitCode: EXIT_CODES.security,
     remediation: 'Do not install this artifact. Resolve the kit again or contact AgentKit support.',

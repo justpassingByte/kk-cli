@@ -11,7 +11,7 @@ import {
   createInstallManifest,
   serializeInstallManifest,
 } from '../../src/infrastructure/installed-kits/installed-kit-store.js';
-import type { AgentKitPaths } from '../../src/infrastructure/paths/agentkit-paths.js';
+import type { KkPaths } from '../../src/infrastructure/paths/kk-paths.js';
 import type { PromptService } from '../../src/presentation/prompt-service.js';
 
 const temporaryDirectories: string[] = [];
@@ -25,7 +25,7 @@ async function fixture() {
   const created = await fs.mkdtemp(path.join(os.tmpdir(), 'ak-uninstall-test-'));
   temporaryDirectories.push(created);
   const home = await fs.realpath(created);
-  const paths: AgentKitPaths = {
+  const paths: KkPaths = {
     home,
     credentials: path.join(home, 'credentials.json'),
     installedKits: path.join(home, 'installed-kits.json'),
@@ -54,7 +54,7 @@ async function seed(
 ): Promise<InstalledKitRecord> {
   const kit = 'engineer';
   const installRoot = path.join(state.home, 'adapters', runtime, kit);
-  const manifestPath = path.join(installRoot, '.agentkit', 'install-manifest.json');
+  const manifestPath = path.join(installRoot, '.kk', 'install-manifest.json');
   const files = [
     { rel_path: 'clean.txt', sha256: sha256Bytes('clean') },
     { rel_path: 'modified.txt', sha256: sha256Bytes('original') },

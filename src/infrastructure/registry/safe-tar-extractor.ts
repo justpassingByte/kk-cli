@@ -4,7 +4,7 @@ import { Readable, type Readable as ReadableStream } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import zlib from 'node:zlib';
 import tar, { type Headers } from 'tar-stream';
-import { AkError, EXIT_CODES } from '../../domain/contracts/ak-error.js';
+import { KkError, EXIT_CODES } from '../../domain/contracts/kk-error.js';
 import { MAX_ARTIFACT_BYTES } from '../../domain/registry/remote-registry-manifest.js';
 
 const MAX_ENTRIES = 10_000;
@@ -52,7 +52,7 @@ export async function extractVerifiedKitArtifact(
     if (!kitManifest.isFile()) throw unsafeArchive(`Archive is missing ${kitId}/kit.yaml.`);
   } catch (error) {
     await fs.promises.rm(destination, { recursive: true, force: true });
-    if (error instanceof AkError) throw error;
+    if (error instanceof KkError) throw error;
     throw unsafeArchive('Could not safely extract the kit artifact.', error);
   }
 }
@@ -141,7 +141,7 @@ async function processArchive(
   try {
     await pipeline(Readable.from(Buffer.from(archive)), zlib.createGunzip(), extractor);
   } catch (error) {
-    if (error instanceof AkError) throw error;
+    if (error instanceof KkError) throw error;
     throw unsafeArchive('Archive is not a valid tar.gz package.', error);
   }
 }
@@ -174,8 +174,8 @@ function asError(error: unknown): Error {
   return error instanceof Error ? error : new Error(String(error));
 }
 
-function unsafeArchive(message: string, cause?: unknown): AkError {
-  return new AkError(message, {
+function unsafeArchive(message: string, cause?: unknown): KkError {
+  return new KkError(message, {
     code: 'security_error',
     exitCode: EXIT_CODES.security,
     remediation: 'Do not install this artifact. Resolve the kit again or contact AgentKit support.',

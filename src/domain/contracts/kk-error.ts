@@ -25,7 +25,7 @@ export type ErrorCode =
   | 'security_error'
   | 'unsupported_environment';
 
-export class AkError extends Error {
+export class KkError extends Error {
   readonly code: ErrorCode;
   readonly exitCode: ExitCode;
   readonly remediation: string | undefined;
@@ -42,7 +42,7 @@ export class AkError extends Error {
     },
   ) {
     super(message, { cause: options.cause });
-    this.name = 'AkError';
+    this.name = 'KkError';
     this.code = options.code;
     this.exitCode = options.exitCode;
     this.remediation = options.remediation;
@@ -50,12 +50,12 @@ export class AkError extends Error {
   }
 }
 
-export function normalizeError(error: unknown): AkError {
-  if (error instanceof AkError) return error;
-  return new AkError(error instanceof Error ? error.message : 'Unexpected error', {
+export function normalizeError(error: unknown): KkError {
+  if (error instanceof KkError) return error;
+  return new KkError(error instanceof Error ? error.message : 'Unexpected error', {
     code: 'runtime_error',
     exitCode: EXIT_CODES.runtime,
-    remediation: 'Run the command again with --verbose. If it still fails, run ak doctor.',
+    remediation: 'Run the command again with --verbose. If it still fails, run kk doctor.',
     cause: error,
   });
 }

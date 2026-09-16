@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { AkError, EXIT_CODES } from '../../src/domain/contracts/ak-error.js';
+import { KkError, EXIT_CODES } from '../../src/domain/contracts/kk-error.js';
 import { sha256Bytes } from '../../src/infrastructure/filesystem/file-hash.js';
 import { LocalFilesystemTransaction } from '../../src/infrastructure/filesystem/local-filesystem-transaction.js';
 
@@ -18,7 +18,7 @@ if (mode === 'recover') {
   const transaction = new LocalFilesystemTransaction(
     async (descriptor, direction) => {
       if (point === 'provider-fail') {
-        throw new AkError('injected provider recovery failure', {
+        throw new KkError('injected provider recovery failure', {
           code: 'conflict',
           exitCode: EXIT_CODES.conflict,
           remediation: 'Review provider state before retrying recovery.',

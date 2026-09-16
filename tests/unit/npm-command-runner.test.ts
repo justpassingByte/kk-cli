@@ -6,7 +6,7 @@ import { resolveNpmInvocation } from '../../src/infrastructure/packages/npm-comm
 
 describe('npm command runner', () => {
   it('runs npm-cli.js with the active Node executable on Windows', async () => {
-    const root = await mkdtemp(path.join(os.tmpdir(), 'ak-npm-runner-'));
+    const root = await mkdtemp(path.join(os.tmpdir(), 'kk-npm-runner-'));
     const nodeExecutable = path.join(root, 'node.exe');
     const npmCli = path.join(
       root,

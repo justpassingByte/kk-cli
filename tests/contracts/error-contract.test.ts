@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { AkError, EXIT_CODES, normalizeError } from '../../src/domain/contracts/ak-error.js';
+import { KkError, EXIT_CODES, normalizeError } from '../../src/domain/contracts/kk-error.js';
 
-describe('AkError', () => {
+describe('KkError', () => {
   it('preserves a closed machine code and exit meaning', () => {
-    const error = new AkError('No session', {
+    const error = new KkError('No session', {
       code: 'auth_required',
       exitCode: EXIT_CODES.dependency,
     });

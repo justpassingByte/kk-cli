@@ -3,17 +3,17 @@ import { DoctorUseCase } from '../../src/application/doctor-use-case.js';
 import type { StoredCredential } from '../../src/infrastructure/credentials/credential-types.js';
 
 const paths = {
-  home: '/missing-agentkit-home',
-  credentials: '/missing-agentkit-home/credentials.json',
-  installedKits: '/missing-agentkit-home/installed-kits.json',
-  locks: '/missing-agentkit-home/locks',
-  snapshots: '/missing-agentkit-home/snapshots',
-  recovery: '/missing-agentkit-home/recovery',
-  supportReports: '/missing-agentkit-home/support-reports',
+  home: '/missing-kk-home',
+  credentials: '/missing-kk-home/credentials.json',
+  installedKits: '/missing-kk-home/installed-kits.json',
+  locks: '/missing-kk-home/locks',
+  snapshots: '/missing-kk-home/snapshots',
+  recovery: '/missing-kk-home/recovery',
+  supportReports: '/missing-kk-home/support-reports',
 };
 
 describe('DoctorUseCase', () => {
-  it('reports competing ak executables without changing PATH', async () => {
+  it('reports competing kk executables without changing PATH', async () => {
     const credential: StoredCredential = {
       schemaVersion: 1,
       authMethod: 'api_key',
@@ -30,14 +30,14 @@ describe('DoctorUseCase', () => {
       },
       discoverExecutables: async () => [
         {
-          path: '/npm/bin/ak',
-          realPath: '/npm/lib/node_modules/@bestagentkits/ak/bin/ak.js',
+          path: '/npm/bin/kk',
+          realPath: '/npm/lib/node_modules/kk-cli/bin/kk.js',
           kind: 'npm',
           packageVersion: '0.1.0-beta.0',
         },
         {
-          path: '/usr/local/bin/ak',
-          realPath: '/usr/local/bin/ak',
+          path: '/usr/local/bin/kk',
+          realPath: '/usr/local/bin/kk',
           kind: 'legacy_native_candidate',
         },
       ],
@@ -52,7 +52,7 @@ describe('DoctorUseCase', () => {
     });
     const checks = result.data['checks'] as Array<{ id: string; status: string }>;
     expect(checks).toContainEqual(
-      expect.objectContaining({ id: 'ak_path', status: 'warn' }),
+      expect.objectContaining({ id: 'kk_path', status: 'warn' }),
     );
   });
 
@@ -118,7 +118,7 @@ describe('DoctorUseCase', () => {
 
     expect(checks).toHaveLength(7);
     expect(checks).toContainEqual(
-      expect.objectContaining({ id: 'ak_path', status: 'fail' }),
+      expect.objectContaining({ id: 'kk_path', status: 'fail' }),
     );
   });
 
